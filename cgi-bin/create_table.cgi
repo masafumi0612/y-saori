@@ -12,7 +12,7 @@ def html_head
   
     <html>
     <head>
-    <title>文書管理情報取得元入力</title>
+    <title>文書管理統計表の閲覧・ダウンロード</title>
     <meta http-equiv="content-type" charset="utf-8">
     </head>
     EOF_HTML
@@ -22,7 +22,7 @@ def html_body
     return <<~EOF_HTML
     <center>
     <body>
-    <font size=6>文書管理情報取得元入力</font>
+    <font size=6>文書管理統計表の閲覧・ダウンロード</font>
       <h3>メッセージ欄</h3>
     </body>
     </center>
