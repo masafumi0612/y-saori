@@ -38,17 +38,17 @@ end
 def html_url_table(url_list)
   pulldown_list = url_pulldown(url_list)
   return <<~EOF_HTML
-  <table border=0 bgcolor =#FFFFFF>
-  <tr bgcolor =#FFCCFF>
+  <p><font color=#CC0000>※登録済みのURLから一つ選択してください</font></p>
+  <table border=1 bgcolor =#FFFFFF>
   <tr>
-    <th>
+    <td bgcolor =#CCFFFF>
       URL
-    </th>
-    <th>
+    </td>
+    <td>
       <select  name="url">
         #{pulldown_list}
       </select>
-    </th>
+    </td>
   </tr>
   </table>
   EOF_HTML
@@ -65,6 +65,37 @@ def url_pulldown(url_list)
   return pulldown_list
 end
 
+def html_select_year
+  return <<~EOF_HTML
+  <p><font color=#CC0000>※表示またはダウンロードしたい作成物を選択してください</font></p>
+  <table border="1">
+  <tr>
+  <td rowspan="3">作成物</td>
+  <td><input name="single" type="checkbox" value="1"></td>
+  <td>提出回数集計表</td>
+  </tr>
+  <tr>
+  <td><input name="multiple" type="checkbox" value="1"></td>
+  <td>提出回数集計表</td>
+  </tr>
+  <tr>
+  <td><input name="graph" type="checkbox" value="1"></td>
+  <td>平均提出回数比較グラフ</td>
+  </tr>
+  </table>
+  EOF_HTML
+end
+
+def html_print_and_download
+  return <<~EOF_HTML
+  <table border="0">
+  <td><form action="create_table.cgi" method="POST" enctype="multipart/form-data"　style="float:left"><br/><br/><input name="commit" type="submit" value="表示"/></form></td>
+  <td><form action="create_table.cgi" method="POST" enctype="multipart/form-data"　style="float:left"><br/><br/><input name="commit" type="submit" value="ダウンロード"/></form></td>
+  </tr>
+  </table>
+  EOF_HTML
+end
+
 content = []
 
 content << html_head
@@ -79,6 +110,10 @@ content << html_message(msg)
 url_list = [{"url"=>"http://sdm.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム"}, {"url"=>"http://sdm2.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム2"}]
 
 content << html_url_table(url_list)
+
+content << html_select_year
+
+content << html_print_and_download
 
 content << html_foot
 
