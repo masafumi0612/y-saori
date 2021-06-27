@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'cgi'
+require 'cgi/session'
 #require '../lib/source_url_controller.rb'
 
 def html_head
@@ -101,6 +102,12 @@ content = []
 content << html_head
 
 params = CGI.new
+
+begin
+  session = CGI::Session.new(params, {"new_session"=>false})
+rescue ArgumentError
+  session = nil
+end
 
 msg = params['msg'].to_s
 msg = "これはテストメッセージです．"
