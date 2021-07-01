@@ -2,7 +2,7 @@
 
 require 'cgi'
 require 'cgi/session'
-#require '../lib/source_url_controller.rb'
+require_relative '../lib/source_url_controller'
 
 def html_head
   return <<~EOF_HTML
@@ -47,7 +47,45 @@ def html_url_table(url_list)
   EOF_HTML
 end
 
-def html_select_year(from_year_form, to_year_form = nil, year = nil)
+def url_pulldown(url_list)
+  pulldown_list = ""
+  pulldown_list << "<option value = 1>""</option>\n"
+  for url_and_name in url_list
+    content = "#{url_and_name["url_name"]}(#{url_and_name["url"]})"
+    pulldown = "<option value = 1>#{content}</option>\n"
+    pulldown_list << pulldown
+  end
+  return pulldown_list
+end
+
+def html_select_year(from_year_form0, to_year_form0, form0,
+                      from_year_form1, to_year_form1, form1,
+                      from_year_form2, to_year_form2, form2,
+                      from_year_form3, to_year_form3, form3,
+                      from_year_form4, to_year_form4, form4,
+                      from_year_form5, to_year_form5, form5,
+                      from_year_form6, to_year_form6, form6,
+                      from_year_form7, to_year_form7, form7,
+                      from_year_form8, to_year_form8, form8,
+                      from_year_form9, to_year_form9, form9)
+forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
+to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
+forms_type = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
+from_year_forms_type = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
+to_year_forms_type = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
+waves = ["", "", "", "", "", "", "", "", "", ""]
+
+for i in 0..forms.length
+  if forms[i] != ""
+    forms_type[i] = "checkbox"
+    from_year_forms_type[i] = "text"
+    if to_year_forms[i] != ""
+      to_year_forms_type[i] = "text"
+      waves[i] = "~"
+    end
+  end
+end
+
   return <<~EOF_HTML
   <table border="1">
   <tr>
@@ -60,9 +98,64 @@ def html_select_year(from_year_form, to_year_form = nil, year = nil)
   </table>
   <table>
   <tr>
-  <td><input type=#{year[0]} name="year[0]" id="year[0]"></td>
-  <td><input type=#{from_year_form[0]} name="from_year_form[0]" id="from_year_form[0]">
-  <td><input type=#{from_year_form[0]} name="from_year_form[0]" id="from_year_form[0]">
+  <td><input type="#{forms_type[0]}" name="form0" id="form0" value="#{form0}"></td>
+  <td><input type="#{from_year_forms_type[0]}" name="from_year_form0" id="from_year_form0" value="#{from_year_form0}"></td>
+  <td><div id="form0_wave">#{waves[0]}</div></td>
+  <td><input type="#{to_year_forms_type[0]}" name="to_year_form0" id="to_year_form0" value=#{to_year_form0}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[1]}" name="form1" id="form1" value='#{form1}'></td>
+  <td><input type="#{from_year_forms_type[1]}" name="from_year_form1" id="from_year_form1" value="#{from_year_form1}"></td>
+  <td><div id="form1_wave">#{waves[1]}</div></td>
+  <td><input type="#{to_year_forms_type[1]}" name="to_year_form1" id="to_year_form1" value=#{to_year_form1}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[2]}" name="form2" id="form2" value='#{form2}'></td>
+  <td><input type="#{from_year_forms_type[2]}" name="from_year_form2" id="from_year_form2" value="#{from_year_form2}"></td>
+  <td><div id="form2_wave">#{waves[2]}</div></td>
+  <td><input type="#{to_year_forms_type[2]}" name="to_year_form2" id="to_year_form2" value=#{to_year_form2}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[3]}" name="form3" id="form3" value='#{form3}'></td>
+  <td><input type="#{from_year_forms_type[3]}" name="from_year_form3" id="from_year_form3" value="#{from_year_form3}"></td>
+  <td><div id="form3_wave">#{waves[3]}</div></td>
+  <td><input type="#{to_year_forms_type[3]}" name="to_year_form3" id="to_year_form3" value=#{to_year_form3}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[4]}" name="form4" id="form4" value='#{form4}'></td>
+  <td><input type="#{from_year_forms_type[4]}" name="from_year_form4" id="from_year_form4" value="#{from_year_form4}"></td>
+  <td><div id="form4_wave">#{waves[4]}</div></td>
+  <td><input type="#{to_year_forms_type[4]}" name="to_year_form4" id="to_year_form4" value=#{to_year_form4}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[5]}" name="form5" id="form5" value='#{form5}'></td>
+  <td><input type="#{from_year_forms_type[5]}" name="from_year_form5" id="from_year_form5" value="#{from_year_form5}"></td>
+  <td><div id="form5_wave">#{waves[5]}</div></td>
+  <td><input type="#{to_year_forms_type[5]}" name="to_year_form5" id="to_year_form5" value=#{to_year_form5}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[6]}" name="form6" id="form6" value='#{form6}'></td>
+  <td><input type="#{from_year_forms_type[6]}" name="from_year_form6" id="from_year_form6" value="#{from_year_form6}"></td>
+  <td><div id="form6_wave">#{waves[6]}</div></td>
+  <td><input type="#{to_year_forms_type[6]}" name="to_year_form6" id="to_year_form6" value=#{to_year_form6}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[7]}" name="form7" id="form7" value='#{form7}'></td>
+  <td><input type="#{from_year_forms_type[7]}" name="from_year_form7" id="from_year_form7" value="#{from_year_form7}"></td>
+  <td><div id="form7_wave">#{waves[7]}</div></td>
+  <td><input type="#{to_year_forms_type[7]}" name="to_year_form7" id="to_year_form7" value=#{to_year_form1}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[8]}" name="form8" id="form8" value='#{form8}'></td>
+  <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}"></td>
+  <td><div id="form8_wave">#{waves[0]}</div></td>
+  <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value=#{to_year_form8}></td>
+  </tr>
+  <tr>
+  <td><input type="#{forms_type[9]}" name="form9" id="form9" value='#{form9}'></td>
+  <td><input type="#{from_year_forms_type[9]}" name="from_year_form9" id="from_year_form9" value="#{from_year_form9}"></td>
+  <td><div id="form9_wave">#{waves[9]}</div></td>
+  <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value=#{to_year_form9}></td>
   </tr>
   </table>
   <table border="1">
@@ -71,105 +164,75 @@ def html_select_year(from_year_form, to_year_form = nil, year = nil)
   <script>
 //  window.onload = function(){
     document.getElementById("single_year_form").onclick = function(){
-      var row = document.createElement("tr");
-      var cell = document.createElement("td");
-      var checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = "year_checkbox";
-      checkbox.checked="checked";
-      var year_form = document.createElement("input");
-      year_form.type = "text";
-      year_form.id = "uComment";
-      year_form.name = "uComment";
-      cell.appendChild(checkbox);
-      cell.appendChild(year_form);
-      row.appendChild(cell);
-      document.getElementById("year_form_field").appendChild(row);
+      for(let i = 0; i < 10; i++){
+        if(document.getElementById("form"+i).value == ""){
+          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).checked = "checked";
+          document.getElementById("form"+i).type="checkbox";
+          document.getElementById("from_year_form"+i).type="text";
+          break;
+        }
+      }
     }
 
     document.getElementById("multiple_year_form").onclick = function(){
-      var row = document.createElement("tr");
-      var cell = document.createElement("td");
-      var checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = "year_checkbox";
-      checkbox.checked="checked";
-      var year_start_form = document.createElement("input");
-      year_start_form.type = "text";
-      year_start_form.id = "uComment";
-      year_start_form.name = "uComment";
-      var wave = document.createTextNode("~");
-      var year_end_form = document.createElement("input");
-      year_end_form.type = "text";
-      year_end_form.id = "uComment";
-      year_end_form.name = "uComment";
-      cell.appendChild(checkbox);
-      cell.appendChild(year_start_form);
-      cell.appendChild(wave);
-      cell.appendChild(year_end_form);
-      row.appendChild(cell);
-      document.getElementById("year_form_field").appendChild(row);
+      for(let i = 0; i < 10; i++){
+        if(document.getElementById("form"+i).value == ""){
+          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).checked = "checked";
+          document.getElementById("form"+i).type="checkbox";
+          document.getElementById("from_year_form"+i).type="text";
+          document.getElementById("form"+i+"_wave").innerHTML = "~";
+          document.getElementById("to_year_form"+i).type="text";
+          break;
+        }
+      }
     }
 
-    function remove_year(){
+    function remove_form(){
       if (this.checked){
       }else{
-        console.log($(this));
-       $(this).type = "hidden";
-      }
-    }
-/*    var years = document.getElementsByName("test");
-    console.log(years);
-    for(let i=0; i<10;i++){
-      years[0].onclick = remove_year
-    }*/
-//  }
-  </script>
-  EOF_HTML
-end
-
-def html_select_year_test(msg)
-  return <<~EOF_HTML
-  <ul>
-  <li><input type="checkbox" checked="checked" name="test" id="test77" /> - らっぱ</li>
-  <li><input type="checkbox" checked="checked" name="test" id="test2" /> - りんご</li>
-  <li><input type="checkbox" id="test3" name="year_checked3"/> - ごりら</li>
-  <li><input type="checkbox" checked="checked" name="test" id="test4" /></li>
-  </ul>
-  <table border="1">
-  <tr>
-  <td><input type="checkbox" checked="checked" name="test" id="test1" /></td>
-  <td><input type="form" checked="checked" name="msg" id="test1_form" value=""></td>
-  </tr>
-  </table>
-  <script>
-
-  function remove_name_test(){
-    if (this.checked){
-    }else{
-      this.type = "hidden";
-      console.log(document.getElementById(this.id+"_form"));
-//      document.getElementById(this.id+"_form").type = "hidden";
-      document.getElementById(this.id+"_form").value = "こんにちは";
+        this.type = "hidden";
+        this.value = "";
+        document.getElementById("from_year_"+this.id).type = "hidden";
+        document.getElementById("from_year_"+this.id).value = "";
+        document.getElementById(this.id+"_wave").innerHTML = "";
+        document.getElementById("to_year_"+this.id).type="hidden";
+        document.getElementById("to_year_"+this.id).value = "";
       }
     }
 
-    for(let i = 1; i < 3; i++){
-      document.getElementById("test"+i).onclick = remove_name_test;
+    for(let i = 0; i < 10; i++)
+    {
+      if(document.getElementById("form"+i).value == "checked"){
+        document.getElementById("form"+i).checked = "checked";
+      }
     }
+
+    var form0 = document.getElementById("form0");
+    var form1 = document.getElementById("form1");
+    var form2 = document.getElementById("form2");
+    var form3 = document.getElementById("form3");
+    var form4 = document.getElementById("form4");
+    var form5 = document.getElementById("form5");
+    var form6 = document.getElementById("form6");
+    var form7 = document.getElementById("form7");
+    var form8 = document.getElementById("form8");
+    var form9 = document.getElementById("form9");
+
+    form0.onclick = remove_form;
+    form1.onclick = remove_form;
+    form2.onclick = remove_form;
+    form3.onclick = remove_form;
+    form4.onclick = remove_form;
+    form5.onclick = remove_form;
+    form6.onclick = remove_form;
+    form7.onclick = remove_form;
+    form8.onclick = remove_form;
+    form9.onclick = remove_form;
+
   </script>
   EOF_HTML
-end
-
-def url_pulldown(url_list)
-  pulldown_list = ""
-  pulldown_list << "<option value = 1>""</option>\n"
-  for url_and_name in url_list
-    content = "#{url_and_name["url_name"]}(#{url_and_name["url"]})"
-    pulldown = "<option value = 1>#{content}</option>\n"
-    pulldown_list << pulldown
-  end
-  return pulldown_list
 end
 
 def html_select_tables_and_graph
@@ -198,7 +261,7 @@ def html_print_and_download(msg)
   <table border="0">
   <tr>
   <td><input name="commit" type="submit" value="表示"/>
-  <input name="msg" type="text" value="#{msg}">
+  <input name="msg" type="hidden" value="#{msg}">
   </td>
   <td><input name="commit" type="submit" value="ダウンロード"/>
   <input name="msg" type="hidden" value="#{msg}">
@@ -237,37 +300,69 @@ rescue ArgumentError
   session = nil
 end
 
-#session = CGI::Session.new(params)
-
 msg = params['msg'].to_s
 
-from_year_form = params['form_year_form']
-to_year_form = params['to_year_form']
-year = params['year']
+from_year_form0 = params['from_year_form0'].to_s
+to_year_form0 = params['to_year_form0'].to_s
+form0 = params['form0'].to_s
+from_year_form1 = params['from_year_form1'].to_s
+to_year_form1 = params['to_year_form1'].to_s
+form1 = params['form1'].to_s
+from_year_form2 = params['from_year_form2'].to_s
+to_year_form2 = params['to_year_form2'].to_s
+form2 = params['form2'].to_s
+from_year_form3 = params['from_year_form3'].to_s
+to_year_form3 = params['to_year_form3'].to_s
+form3 = params['form3'].to_s
+from_year_form4 = params['from_year_form4'].to_s
+to_year_form4 = params['to_year_form4'].to_s
+form4 = params['form4'].to_s
+from_year_form5 = params['from_year_form5'].to_s
+to_year_form5 = params['to_year_form5'].to_s
+form5 = params['form5'].to_s
+from_year_form6 = params['from_year_form6'].to_s
+to_year_form6 = params['to_year_form6'].to_s
+form6 = params['form6'].to_s
+from_year_form7 = params['from_year_form7'].to_s
+to_year_form7 = params['to_year_form7'].to_s
+form7 = params['form7'].to_s
+from_year_form8 = params['from_year_form8'].to_s
+to_year_form8 = params['to_year_form8'].to_s
+form8 = params['form8'].to_s
+from_year_form9 = params['from_year_form9'].to_s
+to_year_form9 = params['to_year_form9'].to_s
+form9 = params['form9'].to_s
 
-from_year_form = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
-to_year_form = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
-year = ["hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden","hidden"]
-
-
+if session == nil
+  session = CGI::Session.new(params, {"new_session"=>true})
+else
+  session = CGI::Session.new(params, {"new_session"=>true})
+end
 content << html_message(msg)
 
 url_list = [{"url"=>"http://sdm.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム"}, {"url"=>"http://sdm2.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム2"}]
 
 content << html_url_table(url_list)
 
-content << html_select_year(from_year_form, to_year_form, year)
-#content << html_select_year_test(msg)
+content << html_select_year(from_year_form0, to_year_form0, form0,
+                            from_year_form1, to_year_form1, form1,
+                            from_year_form2, to_year_form2, form2,
+                            from_year_form3, to_year_form3, form3,
+                            from_year_form4, to_year_form4, form4,
+                            from_year_form5, to_year_form5, form5,
+                            from_year_form6, to_year_form6, form6,
+                            from_year_form7, to_year_form7, form7,
+                            from_year_form8, to_year_form8, form8,
+                            from_year_form9, to_year_form9, form9)
+
 
 content << html_select_tables_and_graph
 
+msg = "結果が表示できました．"
+
 content << html_print_and_download(msg)
 
-#puts "session"
-#puts session
-#if session != nil
 content << html_result
-#end
 
 content << html_foot
 
