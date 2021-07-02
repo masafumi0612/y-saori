@@ -2,6 +2,13 @@ class StatisticsInfo
     def initialize(product_number,product_name,group_name,
         submission_number,submission_average,submission_sum,year)
         #@name = name
+        @product_number = []
+        @product_name = []
+        @group_name = []
+        @submission_number = []
+        @submission_average = []
+        @submission_sum = []
+        @year = year
     end
 
     def product_number()
