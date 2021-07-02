@@ -30,6 +30,7 @@ class SourceURLController
         #read register.json
         hash = File.open(OUTPUT_FILE) do |file|
             JSON.load(file)
+            
         end
     end
 end
