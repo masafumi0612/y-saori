@@ -5,10 +5,10 @@ class DocumentInfo
     end
 
     def group()
-        @group
+        return @group
     end
 
     def remarks()
-        @remarks
+        return @remarks
     end
 end
