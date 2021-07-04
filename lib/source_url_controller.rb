@@ -1,4 +1,4 @@
-require '../database/register.json'
+require 'json'
 
 OUTPUT_FILE = '../database/register.json'
 
@@ -10,7 +10,7 @@ class SourceURLController
     def add (url,register_name)
         #add url to registere.json
         File.open(OUTPUT_FILE, 'a') do |file|
-            file.puts "{\n url:#{url},\n register_name:#{register_name}}"
+            file.puts "{\n \"url\":\"#{url}\",\n \"register_name\":\"#{register_name}\"}"
         end
     end
 
@@ -27,13 +27,9 @@ class SourceURLController
 
     def list ()
         #read register.json
-        tmp_array = []
-        url_array = []
-        url_name = []
-        IO.foreach(OUTPUT_FILE) do |file|
-            if file != "{" || "}" then
-                tmp_array = file.split(":")
-                url_array = if tmp_array
-                 
+        hash = File.open(OUTPUT_FILE) do |file|
+            JSON.load(file)
+        end
+        return hash
     end
 end
