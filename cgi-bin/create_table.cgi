@@ -3,6 +3,8 @@
 require 'cgi'
 require 'cgi/session'
 require_relative '../lib/source_url_controller'
+require_relative '../lib/document_info_controller'
+require_relative '../lib/document_info'
 
 def html_head
   return <<~EOF_HTML
@@ -365,6 +367,10 @@ content << html_select_tables_and_graph
 msg = "結果が表示できました．"
 
 content << html_print_and_download(msg)
+
+doc_info_controller = DocumentInfoController.new
+document_html = doc_info_controller.get("/Users/masafumi/workspace/sdm/y-saori/documentlist.html")
+document_informations = doc_info_controller.parse(document_html)
 
 content << html_result
 
