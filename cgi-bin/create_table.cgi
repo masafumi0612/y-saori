@@ -54,7 +54,7 @@ def url_pulldown(url_list)
   pulldown_list << "<option value = "">""</option>\n"
   i = 2
   for url_and_name in url_list
-    content = "#{url_and_name["url_name"]}(#{url_and_name["url"]})"
+    content = "#{url_and_name["register_name"]}(#{url_and_name["url"]})"
     pulldown = "<option value = #{url_and_name["url"]}>#{content}</option>\n"
     pulldown_list << pulldown
     i = i + 1
@@ -346,7 +346,8 @@ end
 
 content << html_message(msg)
 
-url_list = [{"url"=>"http://sdm.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム"}, {"url"=>"http://sdm2.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム2"}]
+source_url_controller = SourceURLController.new
+url_list = source_url_controller.list
 
 content << html_url_table(url_list, send_url)
 
