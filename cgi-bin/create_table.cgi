@@ -28,7 +28,7 @@ def html_message(msg)
   EOF_HTML
 end
 
-def html_url_table(url_list)
+def html_url_table(url_list, send_url)
   pulldown_list = url_pulldown(url_list)
   return <<~EOF_HTML
   <p><font color=#CC0000>※登録済みのURLから一つ選択してください</font></p>
@@ -38,7 +38,7 @@ def html_url_table(url_list)
       URL
     </td>
     <td>
-      <select name="url">
+      <select name="send_url">
         #{pulldown_list}
       </select>
     </td>
@@ -49,11 +49,13 @@ end
 
 def url_pulldown(url_list)
   pulldown_list = ""
-  pulldown_list << "<option value = 1>""</option>\n"
+  pulldown_list << "<option value = "">""</option>\n"
+  i = 2
   for url_and_name in url_list
     content = "#{url_and_name["url_name"]}(#{url_and_name["url"]})"
-    pulldown = "<option value = 1>#{content}</option>\n"
+    pulldown = "<option value = #{url_and_name["url"]}>#{content}</option>\n"
     pulldown_list << pulldown
+    i = i + 1
   end
   return pulldown_list
 end
@@ -301,6 +303,7 @@ rescue ArgumentError
 end
 
 msg = params['msg'].to_s
+send_url = params['send_url'].to_s
 
 from_year_form0 = params['from_year_form0'].to_s
 to_year_form0 = params['to_year_form0'].to_s
@@ -338,11 +341,12 @@ if session == nil
 else
   session = CGI::Session.new(params, {"new_session"=>true})
 end
+
 content << html_message(msg)
 
 url_list = [{"url"=>"http://sdm.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム"}, {"url"=>"http://sdm2.swlab.cs.okayama-u.ac.jp/2012/cgi-bin/documentlist.cgi", "url_name"=>"文書管理システム2"}]
 
-content << html_url_table(url_list)
+content << html_url_table(url_list, send_url)
 
 content << html_select_year(from_year_form0, to_year_form0, form0,
                             from_year_form1, to_year_form1, form1,
