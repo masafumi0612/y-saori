@@ -9,8 +9,14 @@ class SourceURLController
 
     def add (url,register_name)
         #add url to registere.json
-        File.open(OUTPUT_FILE, 'a') do |file|
-            file.puts "{\n \"url\":\"#{url}\",\n \"register_name\":\"#{register_name}\"}"
+        hash = File.open(OUTPUT_FILE, 'r') do |file|
+            JSON.load(file)
+        end
+        new_hash = {"url" => url, "register_name" => register_name}
+        hash.push(new_hash)
+        File.open(OUTPUT_FILE, 'w') do |file|
+            pretty =  JSON.pretty_generate(hash)
+            file.puts pretty
         end
     end
 

@@ -5,7 +5,7 @@
 #puts "Content-type: text/html\n\n"; #\n\nを加えないとエラーになってしまう(ログを見て確認)
 
 require 'cgi'
-require '../lib/source_url_controller.rb'
+require_relative '../lib/source_url_controller'
 
 def html_head
     return <<~EOF_HTML
@@ -39,7 +39,7 @@ def html_body(url,register)
         </div>
         <div class="form-example">
           <label for="name">register : </label>
-          <input type="text" name="register" id="name" required>
+          <input type="text" name="register" id="name">
         </div>
           <div class="form-example">
           <input type="submit" value="Subscribe!">
@@ -63,13 +63,18 @@ end
 content = []
 
 input = CGI.new
-url = input["url"]
-register = input["register"]
+url = input["url"].to_s
+register = input["register"].to_s
 
 # ここにSourceURLControllerのadd処理
 # srcURLcon = SourceURLController.new
 # err_value = srcURLcon.add(url, register)
 # 返り値は登録できたかどうかのエラー値（bool値）
+
+if url != ""
+  cont = SourceURLController.new
+  cont.add(url, register)
+end
 
 err_value = 0 # 仮のエラー値
 
