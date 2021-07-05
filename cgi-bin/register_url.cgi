@@ -39,7 +39,7 @@ def html_body(url,register)
         </div>
         <div class="form-example">
           <label for="name">register : </label>
-          <input type="text" name="register" id="name" required>
+          <input type="text" name="register" id="name">
         </div>
           <div class="form-example">
           <input type="submit" value="Subscribe!">
@@ -71,7 +71,7 @@ register = input["register"].to_s
 # err_value = srcURLcon.add(url, register)
 # 返り値は登録できたかどうかのエラー値（bool値）
 
-if url != ""  && register != ""
+if url != ""
   cont = SourceURLController.new
   cont.add(url, register)
 end
