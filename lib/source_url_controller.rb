@@ -22,12 +22,13 @@ class SourceURLController
 
     def delete (url,register_name)
         #delete url of registere.json
-        out =""
-        IO.foreach(OUTPUT_FILE) do |file|
-            out << file if file != url
+        hash = File.open(OUTPUT_FILE) do |file|
+            JSON.load(file)
         end
-        File.open(OUTPUT_FILE, 'a') do |file|
-            file.write out
+        hash.delete_if{|x| x["url"] == url && x["register_name"] == register_name}
+        File.open(OUTPUT_FILE, 'w') do |file|
+            pretty =  JSON.pretty_generate(hash)
+            file.puts pretty
         end
     end
 
@@ -39,3 +40,4 @@ class SourceURLController
         return hash
     end
 end
+
