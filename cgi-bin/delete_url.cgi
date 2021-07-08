@@ -71,17 +71,15 @@ def html_foot
 end
 
 #####_main_#####
+input = CGI.new
+cont = SourceURLController.new
 
-hash = File.open("../database/register.json") do |j|
-  JSON.load(j)
+for key in input.keys do 
+   url, register_name = input[key].split(",")
+   cont.delete(url, register_name)
 end
 
-input = CGI.new
-
-# for i in input.keys do 
-#   input[i]を分割
-#   SorceURLController.delete(input[i][1],input[i][2])
-# end
+hash = cont.list
 
 err_value = 1 # 仮のエラー値
 
@@ -96,7 +94,7 @@ end
 content << html_body
 
 # チェックの入ったurl,登録名のみ保存できているか確認用
-for key in input.keys do # keyはurl
+for input in input.keys do # keyはurl
   content << html_test(input[key]) 
 end
 

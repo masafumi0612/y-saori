@@ -32,29 +32,36 @@ def html_body(url,register)
     return <<~EOF_HTML
       <div>#{url},#{register}</div>
 
-      <form action="register_url.cgi" method="POST" class="form-example">
-        <div class="form-example">
-          <label for="name">url: </label>
-          <input type="text" name="url" id="name" required>
-        </div>
-        <div class="form-example">
-          <label for="name">register : </label>
-          <input type="text" name="register" id="name">
-        </div>
-          <div class="form-example">
-          <input type="submit" value="Subscribe!">
-        </div>
+      <form action="register_url.cgi" method="POST" class="form-example">    
+        <table border=1 bgcolor =#FFFFFF>
+          <tr>
+            <td bgcolor =#CCFFFF>
+              URL
+            </td>
+            <td>
+              <input type="text" name="url" id="name">
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor =#CCFFFF>
+              登録名
+            </td>
+            <td>
+              <input type="text" name="register" id="name">
+            </td>
+          </tr>
+        </table><br>
+        
+        <input type="submit" value="追加">
+        
       </form>
-    </body>
-    </center>
     EOF_HTML
 end
 
 def html_foot
     return <<~EOF_HTML
-    <center>
     <a href="../html/index.html">TOPへ戻る</a>
-    <center>
+    </center>
     </body>
     </html>
     EOF_HTML
@@ -66,17 +73,10 @@ input = CGI.new
 url = input["url"].to_s
 register = input["register"].to_s
 
-# ここにSourceURLControllerのadd処理
-# srcURLcon = SourceURLController.new
-# err_value = srcURLcon.add(url, register)
-# 返り値は登録できたかどうかのエラー値（bool値）
-
 if url != ""
   cont = SourceURLController.new
-  cont.add(url, register)
+  err_value = cont.add(url, register)
 end
-
-err_value = 0 # 仮のエラー値
 
 content << html_head
 
