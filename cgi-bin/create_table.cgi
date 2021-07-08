@@ -2,9 +2,13 @@
 
 require 'cgi'
 require 'cgi/session'
+require "cgi/escape"
 require_relative '../lib/source_url_controller'
 require_relative '../lib/document_info_controller'
 require_relative '../lib/document_info'
+require_relative '../lib/statistics_info'
+require_relative '../lib/statistics_info_controller'
+
 
 def html_head
   return <<~EOF_HTML
@@ -260,24 +264,37 @@ def html_select_tables_and_graph
   EOF_HTML
 end
 
-def html_print_and_download(msg)
+def html_print_and_download(msg, used_url, statistics_year)
+  statistics_year_escaped = CGI.escapeHTML(statistics_year.to_s)
   return <<~EOF_HTML
   <table border="0">
   <tr>
   <td><input name="commit" type="submit" value="表示"/>
   <input name="msg" type="hidden" value="#{msg}">
+  <input name="used_url" type="hidden" value="#{used_url}">
+  <input name="statistics_year" type="hidden" value="#{statistics_year_escaped}">
   </td>
   <td><input name="commit" type="submit" value="ダウンロード"/>
   <input name="msg" type="hidden" value="#{msg}">
+  <input name="used_url" type="hidden" value="#{used_url}">
   </td>
   </tr>
   </table>
   EOF_HTML
 end
 
-def html_result
+def html_basic_dialog(username, password)
   return <<~EOF_HTML
-  <p>結果を表示</p>
+  <input type="hidden" id="username" name="username" value="#{username}">
+  <input type="hidden" id="password" name="password" value="#{password}">
+
+  <script>
+  var name = prompt("名前を入力してください");
+  var pass = prompt("パスワードを入力してください");
+  console.log(name)
+  document.getElementById('username').value = name;
+  document.getElementById('password').value = pass;
+   </script>
   EOF_HTML
 end
 
@@ -338,6 +355,13 @@ from_year_form9 = params['from_year_form9'].to_s
 to_year_form9 = params['to_year_form9'].to_s
 form9 = params['form9'].to_s
 
+username = params['username'].to_s
+password = params['password'].to_s
+
+used_url = params['used_url'].to_s
+
+statistics_year = params['statistics_year']
+
 if session == nil
   session = CGI::Session.new(params, {"new_session"=>true})
 else
@@ -362,18 +386,47 @@ content << html_select_year(from_year_form0, to_year_form0, form0,
                             from_year_form8, to_year_form8, form8,
                             from_year_form9, to_year_form9, form9)
 
-
 content << html_select_tables_and_graph
 
 msg = "結果が表示できました．"
 
-content << html_print_and_download(msg)
-
 doc_info_controller = DocumentInfoController.new
-document_html = doc_info_controller.get("/Users/masafumi/workspace/sdm/y-saori/documentlist.html")
-document_informations = doc_info_controller.parse(document_html)
+statistics_info_controller = StatisticsInfoController.new
+statistics_table_result = ""
+if send_url != "" && send_url != used_url
+  begin
+    document_html = doc_info_controller.get(send_url, "SDM", "SDM")
+    document_informations = doc_info_controller.parse(document_html)
+    $statistics_year = []
+    for i in 2009 .. 2021
+      $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,i))
+    end
 
-content << html_result
+    for document_information in document_informations
+      statistics_info_controller.push(document_information.group, document_information.remarks)
+      doc_info_controller.update_url(send_url)
+    end
+
+  rescue OpenURI::HTTPError
+    content << html_basic_dialog(username, password)
+  end
+  statistics_year = $statistics_year
+  $statistics_year = statistics_year
+
+  single_year_table = []
+  $statistics_year.each do |single_year|
+    single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
+  end
+  statistics_table_result = statistics_info_controller.print_table(single_year_table, "", "")
+end
+
+used_url = send_url
+
+content << html_print_and_download(msg, used_url, statistics_year)
+
+if statistics_table_result != ""
+  content << statistics_table_result
+end
 
 content << html_foot
 
