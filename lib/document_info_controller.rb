@@ -1,3 +1,4 @@
+require 'open-uri'
 require 'nokogiri'
 require_relative 'document_info'
 
@@ -7,9 +8,9 @@ class DocumentInfoController
         @charset = nil
     end
 
-    def get (url)
+    def get (url, username = "", password = "")
         #get html
-        html = open(url) do |f|
+        html = open(url, http_basic_authentication: [username, password]) do |f|
             f.read
         end
         @charset = html.encoding.to_s
@@ -29,8 +30,12 @@ class DocumentInfoController
             doc_r = doc_i[7].children.to_s
             doc_g = doc_g.gsub("\n", "")
             doc_r = doc_r.gsub("\n", "")
-            doc_gr[i-2] = DocumentInfo.new(doc_g, doc_r)
-            i = i + 1
+            if doc_g.include?("講義資料")
+                i = i + 1
+            else
+                doc_gr.push(DocumentInfo.new(doc_g, doc_r))
+                i = i + 1
+            end
         end
         return  doc_gr
     end
