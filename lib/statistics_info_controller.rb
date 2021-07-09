@@ -1,5 +1,5 @@
 require 'csv'
-
+require 'gruff'
 require_relative '../lib/statistics_info'
 
 class StatisticsInfoController
@@ -95,7 +95,22 @@ class StatisticsInfoController
     end
 
     def create_graph(group_name, submission_average, year)
+        g = Gruff::Bar.new
+        g.title = "Average"
+        g.x_axis_label = "year"
+        g.y_axis_label = "submission_average"
 
+        name_data = []
+        $statistics_year.each_with_index do |data,i|
+            name_data.push(i,data.year)
+        end
+        g.labels = Hash[*name_data]
+        
+        group_name.each_with_index do |name,i|
+            g.data name, submission_average[i]
+        end
+
+        g.write('average.png')
     end
 
     def create_single_year_csv_file (s_y_table)
