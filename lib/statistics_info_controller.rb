@@ -25,6 +25,26 @@ class StatisticsInfoController
                 text << "</table>"
             end
         end
+
+        if create_multiple_years_table != ""
+            multiple_year_table_row = create_multiple_years_table[0].length
+            text << "<table border=1>"
+            for single_year in create_multiple_years_table
+                text << "<tr>"
+                for i in 0..(multiple_year_table_row-1)
+                    begin
+                        text << "<td>"
+                        text << single_year[i].to_s
+                        text << "</td>"
+                    rescue
+                        text << "<td>"
+                        text << "</td>"
+                    end
+                end
+                text << "</tr>"
+            end
+            text << "</table>"
+        end
         return text
         #creat table html
     end
@@ -57,18 +77,20 @@ class StatisticsInfoController
     end
 
     def create_multiple_years_table(group_name,submission_average,years)
-        table = Array.new(statistics_year.length)
-
+        table = Array.new($statistics_year.length)
         label = [""]
         label.concat group_name
 
-        $statistics_year.each_with_index do |i,data|
-            table[i].push(data.year)
-            table[i].concat data.submission_average
+        $statistics_year.each_with_index do |data,i|
+            line = []
+            line.push(data.year)
+            line.concat data.submission_average
+            #p line
+            table[i] = line
+#            table[i].push(data.year.to_s)
+#            table[i].concat data.submission_average
         end
-
         table.unshift label
-
         return table
     end
 
