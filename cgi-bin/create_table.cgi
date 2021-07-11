@@ -243,24 +243,57 @@ end
   EOF_HTML
 end
 
-def html_select_tables_and_graph
+def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   return <<~EOF_HTML
   <p><font color=#CC0000>※表示またはダウンロードしたい作成物を選択してください</font></p>
   <table border="1">
   <tr>
   <td rowspan="3">作成物</td>
-  <td><input name="single" type="checkbox" value="1"></td>
+  <td><input name="single_select" id="single_select" type="checkbox" value='#{single_select}'></td>
   <td>提出回数集計表</td>
   </tr>
   <tr>
-  <td><input name="multiple" type="checkbox" value="1"></td>
+  <td><input name="multiple_select" id="multiple_select" type="checkbox" value='#{multiple_select}'></td>
   <td>提出回数集計表</td>
   </tr>
   <tr>
-  <td><input name="graph" type="checkbox" value="1"></td>
+  <td><input name="graph_select" id="graph_select" type="checkbox" value='#{graph_select}'></td>
   <td>平均提出回数比較グラフ</td>
   </tr>
   </table>
+
+  <script>
+  if(document.getElementById("single_select").value == "checked"){
+    document.getElementById("single_select").checked = true;
+  }else{
+    document.getElementById("single_select").value = ""
+  }
+  if(document.getElementById("multiple_select").value == "checked"){
+    document.getElementById("multiple_select").checked = true;
+  }else{
+    document.getElementById("multiple_select").value = ""
+  }
+  if(document.getElementById("graph_select").value == "checked"){
+    document.getElementById("graph_select").checked = true;
+  }else{
+    document.getElementById("graph_select").value = ""
+  }
+
+  function value_to_nil(){
+    if (this.checked){
+      this.value = "checked"
+      }else{
+      this.value = ""
+    }
+  }
+
+  var single = document.getElementById("single_select");
+  var multiple = document.getElementById("multiple_select");
+  var graph = document.getElementById("graph_select");
+  single.onclick = value_to_nil
+  multiple.onclick = value_to_nil
+  graph.onclick = value_to_nil
+  </script>
   EOF_HTML
 end
 
@@ -355,6 +388,10 @@ from_year_form9 = params['from_year_form9'].to_s
 to_year_form9 = params['to_year_form9'].to_s
 form9 = params['form9'].to_s
 
+single_select = params['single_select'].to_s
+multiple_select = params['multiple_select'].to_s
+graph_select = params['graph_select'].to_s
+
 username = params['username'].to_s
 password = params['password'].to_s
 
@@ -386,9 +423,14 @@ content << html_select_year(from_year_form0, to_year_form0, form0,
                             from_year_form8, to_year_form8, form8,
                             from_year_form9, to_year_form9, form9)
 
-content << html_select_tables_and_graph
+content << html_select_tables_and_graph(single_select, multiple_select, graph_select)
 
 msg = "結果が表示できました．"
+
+#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
+#single_select = "checked"
+#multiple_select = "checked"
+#graph_select = "checked"
 
 doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
@@ -413,11 +455,38 @@ if send_url != "" && send_url != used_url
   statistics_year = $statistics_year
   $statistics_year = statistics_year
 
-  single_year_table = []
-  $statistics_year.each do |single_year|
-    single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
+  if single_select == "checked"
+    single_year_table = []
+    $statistics_year.each do |single_year|
+      single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
+    end
   end
-  statistics_table_result = statistics_info_controller.print_table(single_year_table, "", "")
+
+  if multiple_select == "checked"
+    group_name_len = 0
+    i_tmp = 0
+    $statistics_year.each_with_index do |single_year, i|
+      if group_name_len < single_year.group_name.length
+        i_tmp = i
+        group_name_len = single_year.group_name.length
+      end
+    end
+    multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+  end
+
+  graph_file_name = ""
+  if graph_select == "checked"
+    group_name_len = 0
+    i_tmp = 0
+    $statistics_year.each_with_index do |single_year, i|
+      if group_name_len < single_year.group_name.length
+        i_tmp = i
+        group_name_len = single_year.group_name.length
+      end
+    end
+    graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+  end
+  statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
 end
 
 used_url = send_url
