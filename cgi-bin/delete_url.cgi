@@ -25,28 +25,28 @@ end
 
 def html_message(err_value, msg_value)
   if (err_value==0) then
-    err_msg="※ 削除完了"
+    err_msg="※　削除完了"
   elsif (err_value==1) then
-    err_msg="※ エラー"
+    err_msg="※　選択されていません"
   else
-    err_mag=""
+    err_msg=""
   end
 
   if (msg_value==true) then
-    msg="削除したい項目を選択してください"
+    msg="※　削除したい項目を選択してください"
   else
-    msg="URLが登録されていません"
+    msg="※　URLが登録されていません"
   end
   
   return <<~EOF_HTML
     <h3>#{err_msg}</h3>
-    <h3>※ #{msg}</h3>
+    <h3>#{msg}</h3>
     EOF_HTML
 end
 
 def html_body
   return <<~EOF_HTML
-  <form action="delete_url.cgi" method="POST" class="form-example">
+  <form action="delete_url.cgi" method="POST" class="form-example" onSubmit="return check()">
   <table border=1 bgcolor =#FFFFFF>
       <tr>
         <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">No</td>
@@ -70,15 +70,15 @@ def html_checkbox(url, register_name,i)
       <tr>
         <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">#{i}</td>
         <td>
-          <input type="text" id="name" value="#{url}" readonly>
+          <input type="text" name="#{i}" value="#{url}" readonly>
         </td>
         <td rowspan="2" width="25" align="center">
-          <input type="checkbox" name="#{url}" id="name" value="#{url},#{register_name}">
+          <input type="checkbox" name="No" value="#{i}">
         </td>
       </tr>
       <tr>
         <td>
-          <input type="text" id="name" value="#{register_name}" readonly>
+          <input type="text" name="#{i}" value="#{register_name}" readonly>
         </td>
       </tr>
     </table>
@@ -88,8 +88,18 @@ end
 def html_foot
     return <<~EOF_HTML
     <input type="submit" value="削除">
+    <input name="submit_flag" type="hidden" value="on">
     </form>
     <a href="../html/index.html">TOPへ戻る</a>
+    <script>
+    function check(){
+      if(window.confirm('削除しますか？')){
+        return true;
+      }else{
+        return false;
+      }
+    }
+    </script>
     </body>
     </center>
     </html>
@@ -105,14 +115,22 @@ end
 #####_main_#####
 input = CGI.new
 cont = SourceURLController.new
+params = input.params
 
-for key in input.keys do # keyはPOSTされたURL
-   url, register_name = input[key].split(",")
-   cont.delete(url, register_name)
+for del_num in params["No"]
+  url,register_name = params[del_num]
+  cont.delete(url, register_name)
 end
 
-msg_value = cont.list.any?
-err_value = "" # 仮のエラー値
+msg_value = cont.list.any? # 取得元が登録されているか
+
+if(params=={}) then 
+  err_value = 2
+elsif((params["submit_flag"]==["on"]) && (params["No"]==[])) then # チェックボックスにチェックが入ってない
+  err_value = 1
+else
+  err_value = 0
+end
 
 content = []
 content << html_head
@@ -123,12 +141,9 @@ cont.list.each.with_index(1) do |register_info, i|
   content << html_checkbox(register_info["url"],register_info["register_name"],i)
 end
 
-content << html_test(url) 
-content << html_test(register_name) 
-
 # チェックの入ったurl,登録名のみ保存できているか確認用
-# for key in input.keys do # keyはurl
-#   content << html_test(input[key]) 
+# for x in params["No"] do # keyはurl
+#   content << html_test(params[x]) 
 # end
 
 content << html_foot
