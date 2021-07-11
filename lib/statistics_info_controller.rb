@@ -1,4 +1,5 @@
 require 'csv'
+require 'gruff'
 
 require_relative '../lib/statistics_info'
 
@@ -9,42 +10,48 @@ class StatisticsInfoController
 
     def print_table(create_single_year_table = "", create_multiple_years_table = "", create_graph = "")
         text = ""
-        if create_single_year_table != ""
 
-            for single_year in create_single_year_table
-                text << "<table border=1>"
-                for products in single_year
-                    text << "<tr>"
-                    for cell in products
-                        text << "<td>"
-                        text << cell.to_s
-                        text << "</td>"
-                    end
-                    text << "</tr>"
-                end
-                text << "</table>"
-            end
-        end
-
-        if create_multiple_years_table != ""
+        if create_multiple_years_table
             multiple_year_table_row = create_multiple_years_table[0].length
-            text << "<table border=1>"
+            text << "<table border=1>\n"
             for single_year in create_multiple_years_table
-                text << "<tr>"
+                text << "<tr>\n"
                 for i in 0..(multiple_year_table_row-1)
                     begin
-                        text << "<td>"
+                        text << "<td>\n"
                         text << single_year[i].to_s
-                        text << "</td>"
+                        text << "</td>\n"
                     rescue
-                        text << "<td>"
-                        text << "</td>"
+                        text << "<td>\n"
+                        text << "</td>\n"
                     end
                 end
-                text << "</tr>"
+                text << "</tr>\n"
             end
-            text << "</table>"
+            text << "</table>\n"
         end
+
+        if create_graph != ""
+            text << '<img src="../downloads/average.png">' << "\n"
+        end
+
+        if create_single_year_table
+            for single_year in create_single_year_table
+                text << "<table border=1>\n"
+                for products in single_year
+                    text << "<tr>\n"
+                    for cell in products
+                        text << "<td>\n"
+                        text << cell.to_s
+                        text << "</td>\n"
+                    end
+                    text << "</tr>\n"
+                end
+                text << "</table>\n"
+            end
+        end
+
+
         return text
         #creat table html
     end
@@ -85,34 +92,46 @@ class StatisticsInfoController
             line = []
             line.push(data.year)
             line.concat data.submission_average
-            #p line
             table[i] = line
-#            table[i].push(data.year.to_s)
-#            table[i].concat data.submission_average
         end
         table.unshift label
         return table
     end
 
     def create_graph(group_name, submission_average, year)
-        g = Gruff::Bar.new
+        g = Gruff::Bar.new(900)
+        
         g.title = "Average"
         g.x_axis_label = "year"
         g.y_axis_label = "submission_average"
+        #g.group_spacing = 3.0
+        #g.bar_spacing = 0.7
+        #g.legend_box_size  = 10 # => 凡例サイズ
+        #g.legend_font_size = 12 # => 凡例のフォントサイズ
+        #g.spacing_factor = 1
+        #g.bottom_margin = 100
+        #g.right_margin = 40
+        #g.font = '/Library/Fonts/好きなフォント.ttf'
+        #g.show_labels_for_bar_values = true
+
+        #g.legend_margin = 1.0
+        g.minimum_value = 0
+        g.y_axis_increment = 1.0
 
         name_data = []
+        group_data = []
         $statistics_year.each_with_index do |data,i|
             name_data.push(i,data.year)
+            group_data[i] = data.group_name
+            group_data[i].each_with_index do |name,i|
+                g.data name, submission_average[i]
+            end
         end
         g.labels = Hash[*name_data]
-        
-        group_name.each_with_index do |name,i|
-            g.data name, submission_average[i]
-        end
 
-        g.write('average.png')
-        
-        return 'average.png'
+        g.write('../downloads/average.png')
+
+        return '../downloads/average.png'
     end
 
     def create_single_year_csv_file (s_y_table)
