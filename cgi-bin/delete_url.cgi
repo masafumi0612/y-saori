@@ -19,84 +19,132 @@ def html_head
     </head>
     <center>
     <body>
-    <font size=6>文書管理情報取得元入力</font>
+    <font size=6>文書管理情報取得元削除</font>
     EOF_HTML
 end
 
-def html_message(err_value)
+def html_message(err_value, msg_value)
   if (err_value==0) then
-    msg="削除完了"
+    err_msg="※　削除完了"
   elsif (err_value==1) then
-    msg="エラー"
+    err_msg="※　選択されていません"
   else
-    mag=""
+    err_msg=""
+  end
+
+  if (msg_value==true) then
+    msg="※　削除したい項目を選択してください"
+  else
+    msg="※　URLが登録されていません"
   end
   
   return <<~EOF_HTML
+    <h3>#{err_msg}</h3>
     <h3>#{msg}</h3>
-    <form action="delete_url.cgi" method="POST" class="form-example">
-  EOF_HTML
-end
-
-def html_checkbox(url, register_name)
-  return <<~EOF_HTML
-      <div>
-        <div class="form-example"><input type="text" id="name" value="#{url}"></div>
-        <div class="form-example"><input type="text" id="name" value="#{register_name}"></div>
-        <input type="checkbox" name="#{url}" id="name" value="#{url},#{register_name}">
-      </div>
-  EOF_HTML
-end
-
-def html_body
-    return <<~EOF_HTML
-        <input type="submit" value="削除">
-      </form>
     EOF_HTML
 end
 
-def html_test(test)
+def html_body
   return <<~EOF_HTML
-    <h3>#{test}</h3>
+  <form action="delete_url.cgi" method="POST" class="form-example" onSubmit="return check()">
+  <table border=1 bgcolor =#FFFFFF>
+      <tr>
+        <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">No</td>
+        <td>
+          <input type="text" value="URL" readonly>
+        </td>
+        <td rowspan="2" width="25"></td>
+      </tr>
+      <tr>
+        <td>
+          <input type="text" value="登録名" readonly>
+        </td>
+      </tr>
+    </table><br>
+  EOF_HTML
+end 
+
+def html_checkbox(url, register_name,i)
+  return <<~EOF_HTML
+    <table border=1 bgcolor =#FFFFFF>
+      <tr>
+        <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">#{i}</td>
+        <td>
+          <input type="text" name="#{i}" value="#{url}" readonly>
+        </td>
+        <td rowspan="2" width="25" align="center">
+          <input type="checkbox" name="No" value="#{i}">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input type="text" name="#{i}" value="#{register_name}" readonly>
+        </td>
+      </tr>
+    </table>
   EOF_HTML
 end
 
 def html_foot
     return <<~EOF_HTML
+    <input type="submit" value="削除">
+    <input name="submit_flag" type="hidden" value="on">
+    </form>
     <a href="../html/index.html">TOPへ戻る</a>
+    <script>
+    function check(){
+      if(window.confirm('削除しますか？')){
+        return true;
+      }else{
+        return false;
+      }
+    }
+    </script>
     </body>
     </center>
     </html>
     EOF_HTML
 end
 
+def html_test(test)
+  return <<~EOF_HTML
+    <h3>表示テスト：#{test}</h3>
+  EOF_HTML
+end
+
 #####_main_#####
 input = CGI.new
 cont = SourceURLController.new
+params = input.params
 
-for key in input.keys do 
-   url, register_name = input[key].split(",")
-   cont.delete(url, register_name)
+for del_num in params["No"]
+  url,register_name = params[del_num]
+  cont.delete(url, register_name)
 end
 
-hash = cont.list
+msg_value = cont.list.any? # 取得元が登録されているか
 
-err_value = 1 # 仮のエラー値
+if(params=={}) then 
+  err_value = 2
+elsif((params["submit_flag"]==["on"]) && (params["No"]==[])) then # チェックボックスにチェックが入ってない
+  err_value = 1
+else
+  err_value = 0
+end
 
 content = []
 content << html_head
-content << html_message(err_value)
-
-for register_info in hash do
-  content << html_checkbox(register_info["url"],register_info["register_name"])
-end
-
+content << html_message(err_value, msg_value)
 content << html_body
 
-# チェックの入ったurl,登録名のみ保存できているか確認用
-for input in input.keys do # keyはurl
-  content << html_test(input[key]) 
+cont.list.each.with_index(1) do |register_info, i|
+  content << html_checkbox(register_info["url"],register_info["register_name"],i)
 end
+
+# チェックの入ったurl,登録名のみ保存できているか確認用
+# for x in params["No"] do # keyはurl
+#   content << html_test(params[x]) 
+# end
 
 content << html_foot
 
