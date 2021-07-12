@@ -297,22 +297,32 @@ def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   EOF_HTML
 end
 
-def html_print_and_download(msg, used_url, statistics_year)
+def html_print_and_download(print_select, download_select, msg, used_url, statistics_year)
   statistics_year_escaped = CGI.escapeHTML(statistics_year.to_s)
   return <<~EOF_HTML
   <table border="0">
   <tr>
-  <td><input name="commit" type="submit" value="表示"/>
+  <td><input id="print" type="submit" value="表示"/>
+  <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
   <input name="msg" type="hidden" value="#{msg}">
   <input name="used_url" type="hidden" value="#{used_url}">
   <input name="statistics_year" type="hidden" value="#{statistics_year_escaped}">
   </td>
-  <td><input name="commit" type="submit" value="ダウンロード"/>
+  <td><input id="download" type="submit" value="ダウンロード"/>
+  <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
   <input name="msg" type="hidden" value="#{msg}">
   <input name="used_url" type="hidden" value="#{used_url}">
   </td>
   </tr>
   </table>
+  <script>
+  document.getElementById("print").onclick = function() {
+    document.getElementById("print_select").value = "click";
+  }
+  document.getElementById("download").onclick = function() {
+    document.getElementById("download_select").value = "click";
+  }
+  </script>
   EOF_HTML
 end
 
@@ -331,6 +341,34 @@ def html_basic_dialog(username, password)
   EOF_HTML
 end
 
+def html_download_script(download_filepath)
+  return <<~EOF_HTML
+  <script>
+  function downloadFromUrlAutomatically(url, fileName){
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'blob';
+    xhr.onload = function(e){
+      if(this.status == 200){
+        var urlUtil = window.URL || window.webkitURL;
+        var imgUrl = urlUtil.createObjectURL(this.response);
+        var link = document.createElement('a');
+        link.href=imgUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link)
+      }
+    };
+    xhr.send();
+  }
+
+  downloadFromUrlAutomatically('http://localhost/y-saori/cgi-bin/#{download_filepath}', "#{download_filepath}");
+  </script>
+
+  EOF_HTML
+end
+
 def html_foot
   return <<~EOF_HTML
   <a href="../html/index.html">トップへ戻る</a>
@@ -344,7 +382,6 @@ end
 
 content = []
 
-content << html_head
 
 params = CGI.new
 
@@ -388,6 +425,9 @@ from_year_form9 = params['from_year_form9'].to_s
 to_year_form9 = params['to_year_form9'].to_s
 form9 = params['form9'].to_s
 
+print_select = params['print_select'].to_s
+download_select = params['download_select'].to_s
+
 single_select = params['single_select'].to_s
 multiple_select = params['multiple_select'].to_s
 graph_select = params['graph_select'].to_s
@@ -405,10 +445,12 @@ else
   session = CGI::Session.new(params, {"new_session"=>true})
 end
 
-content << html_message(msg)
-
 source_url_controller = SourceURLController.new
 url_list = source_url_controller.list
+
+content << html_head
+
+content << html_message(msg)
 
 content << html_url_table(url_list, send_url)
 
@@ -431,6 +473,8 @@ msg = "結果が表示できました．"
 #single_select = "checked"
 #multiple_select = "checked"
 #graph_select = "checked"
+#print_select = "click"
+#download_select = "click"
 
 doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
@@ -450,48 +494,99 @@ if send_url != "" && send_url != used_url
     end
 
   rescue OpenURI::HTTPError
-    content << html_basic_dialog(username, password)
+    basic_flag = 1
   end
   statistics_year = $statistics_year
   $statistics_year = statistics_year
 
-  if single_select == "checked"
-    single_year_table = []
-    $statistics_year.each do |single_year|
-      single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
-    end
-  end
-
-  if multiple_select == "checked"
-    group_name_len = 0
-    i_tmp = 0
-    $statistics_year.each_with_index do |single_year, i|
-      if group_name_len < single_year.group_name.length
-        i_tmp = i
-        group_name_len = single_year.group_name.length
+  if print_select == "click"
+    if single_select == "checked"
+      single_year_table = []
+      $statistics_year.each do |single_year|
+        single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
       end
     end
-    multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+
+    if multiple_select == "checked"
+      group_name_len = 0
+      i_tmp = 0
+      $statistics_year.each_with_index do |single_year, i|
+        if group_name_len < single_year.group_name.length
+          i_tmp = i
+          group_name_len = single_year.group_name.length
+        end
+      end
+      multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+    end
+
+    graph_file_name = ""
+    if graph_select == "checked"
+      group_name_len = 0
+      i_tmp = 0
+      $statistics_year.each_with_index do |single_year, i|
+        if group_name_len < single_year.group_name.length
+          i_tmp = i
+          group_name_len = single_year.group_name.length
+        end
+      end
+      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+    end
+    statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
   end
 
-  graph_file_name = ""
-  if graph_select == "checked"
-    group_name_len = 0
-    i_tmp = 0
-    $statistics_year.each_with_index do |single_year, i|
-      if group_name_len < single_year.group_name.length
-        i_tmp = i
-        group_name_len = single_year.group_name.length
+  if download_select == "click"
+    if single_select == "checked"
+      single_year_table = []
+      $statistics_year.each do |single_year|
+        single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, single_year.year))
+      end
+      single_year_table.zip($statistics_year) do |single_year, a|
+        statistics_info_controller.create_single_year_csv_file(single_year, a.year)
       end
     end
-    graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+
+    if multiple_select == "checked"
+      group_name_len = 0
+      i_tmp = 0
+      $statistics_year.each_with_index do |single_year, i|
+        if group_name_len < single_year.group_name.length
+          i_tmp = i
+          group_name_len = single_year.group_name.length
+        end
+      end
+      multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+      multiple_year_table_csv = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
+    end
+
+    graph_file_name = ""
+    if graph_select == "checked"
+      group_name_len = 0
+      i_tmp = 0
+      $statistics_year.each_with_index do |single_year, i|
+        if group_name_len < single_year.group_name.length
+          i_tmp = i
+          group_name_len = single_year.group_name.length
+        end
+      end
+      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+    end
+
+    download_filepath = statistics_info_controller.download_table("", "", "")
+    content << html_download_script(download_filepath)
   end
-  statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
+
 end
 
 used_url = send_url
 
-content << html_print_and_download(msg, used_url, statistics_year)
+content << html_print_and_download(print_select, download_select, msg, used_url, statistics_year)
+
+#begin
+#  if basic_flag == 1
+#    content << html_basic_dialog(username, password)
+#  end
+#rescue
+#end
 
 if statistics_table_result != ""
   content << statistics_table_result
