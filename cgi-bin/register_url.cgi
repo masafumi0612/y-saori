@@ -84,7 +84,7 @@ end
 
 def html_foot
     return <<~EOF_HTML
-    <a href="../html/index.html">TOPへ戻る</a>
+    <a href="../index.html">TOPへ戻る</a>
     </center>
     </body>
     </html>
