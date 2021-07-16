@@ -133,8 +133,14 @@ class StatisticsInfoController
                         data.submission_number.push([])
                         data.submission_number[data.submission_number.length-1].push(1)
 
-                        data.submission_sum.push(1)
-                        data.submission_average.push(1.0)
+                        sum = 0
+                        data.submission_number[i].each do |num|
+                            sum += num
+                        end
+                        data.submission_sum[i] = sum
+
+                        ave = (data.submission_sum[i].to_f / data.submission_number[i].length.to_f).round(2)
+                        data.submission_average[i] = ave
                     else
                         unless j = data.product_number.find_index{|num|num == rem_sl[1]} then
                             data.product_number.push(rem_sl[1])
@@ -152,6 +158,7 @@ class StatisticsInfoController
                             data.submission_average[i] = ave
                         else
                             data.submission_number[i][j] = data.submission_number[i][j].to_i + 1
+
                             sum = 0
                             data.submission_number[i].each do |num|
                                 sum += num
