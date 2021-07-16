@@ -2,6 +2,12 @@ require 'json'
 
 OUTPUT_FILE = '../database/register.json'
 
+NORMAL = 0
+CONSTRAINT_ERR = 1
+BLANK_ERR = 2
+DUPLICATIOM_ERR = 3
+LIMIT_ERR = 4
+
 class SourceURLController
     def initialize ()
         #read register.json
@@ -9,48 +15,44 @@ class SourceURLController
 
     def add (url,register_name)
         #add url to registere.json
-    
-        # 制約条件
-        if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url || url.length > 2048 || register_name.length > 128
-            return 1 
-        end 
 
-        hash = File.open(OUTPUT_FILE, 'r') do |file|
-            JSON.load(file)
-        end 
+        File.open(OUTPUT_FILE, "r+"){|f|
+            f.flock(File::LOCK_EX)
+            hash = JSON.load(f)
 
-        # urlが10個あればエラー
-        if hash.length == 10 
-            return 1
-        end
-
-        # urlがすでに追加されていたらエラー
-        hash.each do |v|
-            if v["url"] == url
-                return 1
+            if hash.length == 10 
+                return LIMIT_ERR
             end
-        end
 
-        new_hash = {"url" => url, "register_name" => register_name}
-        hash.push(new_hash)
-        File.open(OUTPUT_FILE, 'w') do |file|
-            pretty = JSON.pretty_generate(hash)
-            file.puts pretty
-        end
+            hash.each do |h|
+                if h["url"] == url
+                    return DUPLICATIOM_ERR
+                end
+            end
 
-        return 0
+            f.rewind
+            new_hash = {"url" => url, "register_name" => register_name}
+            hash.push(new_hash)
+            pretty =  JSON.pretty_generate(hash)
+            f.puts pretty
+            f.flush
+            f.truncate(f.pos)
+        }
+
+        return NORMAL
     end
 
     def delete (url,register_name)
-        #delete url of registere.json
-        hash = File.open(OUTPUT_FILE) do |file|
-            JSON.load(file)
-        end
-        hash.delete_if{|x| x["url"] == url && x["register_name"] == register_name}
-        File.open(OUTPUT_FILE, 'w') do |file|
-            pretty =  JSON.pretty_generate(hash)
-            file.puts pretty
-        end
+        File.open(OUTPUT_FILE, "r+"){|f|
+            f.flock(File::LOCK_EX)
+            hash = JSON.load(f)
+            f.rewind
+            hash.delete_if{|h| h["url"] == url && h["register_name"] == register_name}
+            pretty = JSON.pretty_generate(hash)
+            f.puts pretty
+            f.flush
+            f.truncate(f.pos)
+        }
     end
 
     def list ()
@@ -61,6 +63,3 @@ class SourceURLController
         return hash
     end
 end
-
-# test = SourceURLController.new
-# p test.add("rrrrrrrrrrrrr", "z")

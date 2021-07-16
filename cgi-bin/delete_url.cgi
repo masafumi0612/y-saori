@@ -8,6 +8,9 @@ require 'cgi'
 require 'json'
 require '../lib/source_url_controller.rb'
 
+NORMAL = 0
+NO_SELECT_ERR = 1
+
 def html_head
     return <<~EOF_HTML
     Content-Type: text/html
@@ -24,18 +27,20 @@ def html_head
 end
 
 def html_message(err_value, msg_value)
-  if (err_value==0) then
-    err_msg="※　削除完了"
-  elsif (err_value==1) then
-    err_msg="※　選択されていません"
+  case err_value
+  when NORMAL then
+    err_msg="※選択した項目の削除が完了しました．"
+  when NO_SELECT_ERR then
+    err_msg="※削除する項目が選択されていません．"
   else
     err_msg=""
   end
 
-  if (msg_value==true) then
-    msg="※　削除したい項目を選択してください"
-  else
-    msg="※　URLが登録されていません"
+  case msg_value
+  when true then
+    msg="※削除する項目を選択してください．"
+  when false then
+    msg="※文書管理情報取得元が登録されていません．"
   end
   
   return <<~EOF_HTML
@@ -73,7 +78,7 @@ def html_checkbox(url, register_name,i)
           <input type="text" name="#{i}" value="#{url}" readonly>
         </td>
         <td rowspan="2" width="25" align="center">
-          <input type="checkbox" name="No" value="#{i}">
+          <input type="checkbox" name="info_num" value="#{i}">
         </td>
       </tr>
       <tr>
@@ -87,13 +92,14 @@ end
 
 def html_foot
     return <<~EOF_HTML
+    <br>
     <input type="submit" value="削除">
     <input name="submit_flag" type="hidden" value="on">
     </form>
     <a href="../html/index.html">TOPへ戻る</a>
     <script>
     function check(){
-      if(window.confirm('削除しますか？')){
+      if(window.confirm('選択した項目を削除しますか？')){
         return true;
       }else{
         return false;
@@ -114,22 +120,25 @@ end
 
 #####_main_#####
 input = CGI.new
-cont = SourceURLController.new
 params = input.params
 
-for del_num in params["No"]
+cont = SourceURLController.new
+
+for del_num in params["info_num"]
   url,register_name = params[del_num]
+  url = CGI.escapeHTML(url)
+  register_name = CGI.escapeHTML(register_name)
   cont.delete(url, register_name)
 end
 
-msg_value = cont.list.any? # 取得元が登録されているか
+register_info_list = cont.list
 
-if(params=={}) then 
-  err_value = 2
-elsif((params["submit_flag"]==["on"]) && (params["No"]==[])) then # チェックボックスにチェックが入ってない
-  err_value = 1
-else
-  err_value = 0
+msg_value = register_info_list.any? # 取得元が登録されているか
+
+if((params["submit_flag"]==["on"]) && (params["info_num"]==[])) then # チェックボックスにチェックが入ってない
+  err_value = NO_SELECT_ERR
+elsif((params["submit_flag"]==["on"]) && (!(params["info_num"]==[]))) then # チェックボックスにチェックが入ってない 
+  err_value = NORMAL
 end
 
 content = []
@@ -137,14 +146,9 @@ content << html_head
 content << html_message(err_value, msg_value)
 content << html_body
 
-cont.list.each.with_index(1) do |register_info, i|
+register_info_list.each.with_index(1) do |register_info, i|
   content << html_checkbox(register_info["url"],register_info["register_name"],i)
 end
-
-# チェックの入ったurl,登録名のみ保存できているか確認用
-# for x in params["No"] do # keyはurl
-#   content << html_test(params[x]) 
-# end
 
 content << html_foot
 
