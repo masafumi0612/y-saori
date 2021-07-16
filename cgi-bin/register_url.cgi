@@ -24,6 +24,7 @@ def html_head
     <head>
     <title>文書管理情報取得元入力</title>
     <meta http-equiv="content-type" charset="utf-8">
+    <link rel="stylesheet" href="../html/style.css">
     </head>
     <center>
     <body>
@@ -44,7 +45,7 @@ def html_message(err_value)
   when DUPLICATION_ERR then
     msg="※すでに追加されたURLです．" 
   when LIMIT_ERR then
-    msg="※すでに10個の文書管理情報が登録されています．10より少なくなるように削除してください．" 
+    msg="※すでに10個の文書管理情報が登録されています．" 
   else
     msg=""
   end
@@ -59,19 +60,19 @@ def html_body
       <form action="register_url.cgi" method="POST" class="form-example">    
         <table border=1 bgcolor =#FFFFFF>
           <tr>
-            <td bgcolor =#CCFFFF>
-              URL
+            <td class="add_index" bgcolor =#CCFFFF>
+              URL（必須）
             </td>
             <td>
-              <input type="text" name="url" id="name">
+              <input type="text" name="url" class="register_text">
             </td>
           </tr>
           <tr>
-            <td bgcolor =#CCFFFF>
-              登録名
+            <td class="add_index" bgcolor =#CCFFFF>
+              登録名（任意）
             </td>
-            <td>
-              <input type="text" name="register_name" id="name">
+            <td class="register_text">
+              <input type="text" name="register_name" class="register_text">
             </td>
           </tr>
         </table><br>
