@@ -2,6 +2,12 @@ require 'json'
 
 OUTPUT_FILE = '../database/register.json'
 
+NORMAL = 0
+CONSTRAINT_ERR = 1
+BLANK_ERR = 2
+DUPLICATIOM_ERR = 3
+LIMIT_ERR = 4
+
 class SourceURLController
     def initialize ()
         #read register.json
@@ -9,11 +15,10 @@ class SourceURLController
 
     def add (url,register_name)
         #add url to registere.json
-    
-        
+
         # 制約条件
         if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url || url.length > 2048 || register_name.length > 128
-            return 1 
+            return CONSTRAINT_ERR
         end 
 
         File.open(OUTPUT_FILE, "r+"){|f|
@@ -21,12 +26,12 @@ class SourceURLController
             hash = JSON.load(f)
 
             if hash.length == 10 
-                return 1
+                return LIMIT_ERR
             end
 
             hash.each do |h|
                 if h["url"] == url
-                    return 1
+                    return DUPLICATIOM_ERR
                 end
             end
 
@@ -39,7 +44,7 @@ class SourceURLController
             f.truncate(f.pos)
         }
 
-        return 0
+        return NORMAL
     end
 
     def delete (url,register_name)
