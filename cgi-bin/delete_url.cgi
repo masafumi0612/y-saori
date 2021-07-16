@@ -126,6 +126,8 @@ cont = SourceURLController.new
 
 for del_num in params["info_num"]
   url,register_name = params[del_num]
+  url = CGI.escapeHTML(url)
+  register_name = CGI.escapeHTML(register_name)
   cont.delete(url, register_name)
 end
 

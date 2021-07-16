@@ -13,6 +13,9 @@ BLANK_ERR = 2
 DUPLICATION_ERR = 3
 LIMIT_ERR = 4
 
+URL_LEN = 2048
+REGISTER_NAME_LEN = 128
+
 def html_head
     return <<~EOF_HTML
     Content-Type: text/html
@@ -34,8 +37,8 @@ def html_message(err_value)
     msg="※文書管理情報取得元の登録が完了しました．"
   when CONSTRAINT_ERR then 
     msg="※URLには半角記号\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#と半角英数字のみ入力できます
-        <br>※URLの最大文字数は2048文字です．
-        <br>※登録名の最大文字数は128文字です．"
+        <br>URLの最大文字数は2048文字です．
+        <br>登録名の最大文字数は128文字です．"
   when BLANK_ERR then 
     msg="※URLが入力されていません．"
   when DUPLICATION_ERR then
@@ -68,7 +71,7 @@ def html_body
               登録名
             </td>
             <td>
-              <input type="text" name="register" id="name">
+              <input type="text" name="register_name" id="name">
             </td>
           </tr>
         </table><br>
@@ -98,14 +101,18 @@ content = []
 
 input = CGI.new
 url = input["url"].to_s
-register = input["register"].to_s
+register_name = input["register_name"].to_s
 
-if url != ""
-  cont = SourceURLController.new
-  err_value = cont.add(url, register)
-elsif input["submit_flag"]=="on"
+if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url || url.length > URL_LEN || register_name.length > REGISTER_NAME_LEN
+  err_value = CONSTRAINT_ERR
+elsif input["submit_flag"]=="on" && url == ""
   err_value = BLANK_ERR
-end
+elsif input["submit_flag"]=="on"
+  url = CGI.escapeHTML(url) 
+  register_name = CGI.escapeHTML(register_name)
+  cont = SourceURLController.new
+  err_value = cont.add(url, register_name)
+end 
 
 content << html_head
 content << html_message(err_value)

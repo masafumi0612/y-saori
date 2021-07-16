@@ -16,11 +16,6 @@ class SourceURLController
     def add (url,register_name)
         #add url to registere.json
 
-        # 制約条件
-        if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url || url.length > 2048 || register_name.length > 128
-            return CONSTRAINT_ERR
-        end 
-
         File.open(OUTPUT_FILE, "r+"){|f|
             f.flock(File::LOCK_EX)
             hash = JSON.load(f)
@@ -53,12 +48,11 @@ class SourceURLController
             hash = JSON.load(f)
             f.rewind
             hash.delete_if{|h| h["url"] == url && h["register_name"] == register_name}
-            pretty =  JSON.pretty_generate(hash)
+            pretty = JSON.pretty_generate(hash)
             f.puts pretty
             f.flush
             f.truncate(f.pos)
         }
-        
     end
 
     def list ()
@@ -69,6 +63,3 @@ class SourceURLController
         return hash
     end
 end
-
-# test = SourceURLController.new
-# p test.add("rrrrrrrrrrrrr", "z")
