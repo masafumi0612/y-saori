@@ -87,7 +87,7 @@ for i in 0..forms.length
   if forms[i] != ""
     forms_type[i] = "checkbox"
     from_year_forms_type[i] = "text"
-    if to_year_forms[i] != ""
+    if forms[i] == "multiple"
       to_year_forms_type[i] = "text"
       waves[i] = "~"
     end
@@ -174,7 +174,7 @@ end
     document.getElementById("single_year_form").onclick = function(){
       for(let i = 0; i < 10; i++){
         if(document.getElementById("form"+i).value == ""){
-          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).value = "single";
           document.getElementById("form"+i).checked = "checked";
           document.getElementById("form"+i).type="checkbox";
           document.getElementById("from_year_form"+i).type="text";
@@ -186,7 +186,7 @@ end
     document.getElementById("multiple_year_form").onclick = function(){
       for(let i = 0; i < 10; i++){
         if(document.getElementById("form"+i).value == ""){
-          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).value = "multiple";
           document.getElementById("form"+i).checked = "checked";
           document.getElementById("form"+i).type="checkbox";
           document.getElementById("from_year_form"+i).type="text";
@@ -212,7 +212,7 @@ end
 
     for(let i = 0; i < 10; i++)
     {
-      if(document.getElementById("form"+i).value == "checked"){
+      if(document.getElementById("form"+i).value == "single" || document.getElementById("form"+i).value == "multiple"){
         document.getElementById("form"+i).checked = "checked";
       }
     }
