@@ -3,10 +3,8 @@ require 'json'
 OUTPUT_FILE = '../database/register.json'
 
 NORMAL = 0
-CONSTRAINT_ERR = 1
-BLANK_ERR = 2
-DUPLICATIOM_ERR = 3
-LIMIT_ERR = 4
+DUPLICATIOM_ERR = 5
+LIMIT_ERR = 6
 
 class SourceURLController
     def initialize ()
@@ -20,7 +18,7 @@ class SourceURLController
             f.flock(File::LOCK_EX)
             hash = JSON.load(f)
 
-            if hash.length == 10 
+            if hash.length >= 10 
                 return LIMIT_ERR
             end
 

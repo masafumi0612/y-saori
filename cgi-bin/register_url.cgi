@@ -8,10 +8,12 @@ require 'cgi'
 require_relative '../lib/source_url_controller'
 
 NORMAL = 0
-CONSTRAINT_ERR = 1
-BLANK_ERR = 2
-DUPLICATION_ERR = 3
-LIMIT_ERR = 4
+IRREGULAR_CHARACTER_ERR = 1
+URL_LEN_ERR = 2
+REGISTER_NAME_LEN_ERR = 3
+BLANK_ERR = 4
+DUPLICATION_ERR = 5
+LIMIT_ERR = 6
 
 URL_LEN = 2048
 REGISTER_NAME_LEN = 128
@@ -36,10 +38,12 @@ def html_message(err_value)
   case err_value
   when NORMAL then
     msg="※文書管理情報取得元の登録が完了しました．"
-  when CONSTRAINT_ERR then 
-    msg="※URLには半角記号\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#と半角英数字のみ入力できます
-        <br>URLの最大文字数は2048文字です．
-        <br>登録名の最大文字数は128文字です．"
+  when IRREGULAR_CHARACTER_ERR then 
+    msg="※URLには半角記号\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#と半角英数字のみ入力できます"
+  when URL_LEN_ERR then
+    msg="※URLの最大文字数は2048文字です．"
+  when REGISTER_NAME_LEN_ERR then
+    msg="※登録名の最大文字数は128文字です．" 
   when BLANK_ERR then 
     msg="※URLが入力されていません．"
   when DUPLICATION_ERR then
@@ -104,8 +108,12 @@ input = CGI.new
 url = input["url"].to_s
 register_name = input["register_name"].to_s
 
-if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url || url.length > URL_LEN || register_name.length > REGISTER_NAME_LEN
-  err_value = CONSTRAINT_ERR
+if /[^\w\-\_\.\!\'\(\)\;\/\?\:\@\&\=\+\$\,\%\#]/ =~ url 
+  err_value = IRREGULAR_CHARACTER_ERR
+elsif url.length > URL_LEN
+  err_value = URL_LEN_ERR
+elsif register_name.length > REGISTER_NAME_LEN
+  err_value = REGISTER_NAME_LEN_ERR
 elsif input["submit_flag"]=="on" && url == ""
   err_value = BLANK_ERR
 elsif input["submit_flag"]=="on"
