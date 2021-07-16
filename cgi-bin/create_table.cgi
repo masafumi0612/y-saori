@@ -87,7 +87,7 @@ for i in 0..forms.length
   if forms[i] != ""
     forms_type[i] = "checkbox"
     from_year_forms_type[i] = "text"
-    if to_year_forms[i] != ""
+    if forms[i] == "multiple"
       to_year_forms_type[i] = "text"
       waves[i] = "~"
     end
@@ -156,7 +156,7 @@ end
   <tr>
   <td><input type="#{forms_type[8]}" name="form8" id="form8" value='#{form8}'></td>
   <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}"></td>
-  <td><div id="form8_wave">#{waves[0]}</div></td>
+  <td><div id="form8_wave">#{waves[8]}</div></td>
   <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value=#{to_year_form8}></td>
   </tr>
   <tr>
@@ -174,7 +174,7 @@ end
     document.getElementById("single_year_form").onclick = function(){
       for(let i = 0; i < 10; i++){
         if(document.getElementById("form"+i).value == ""){
-          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).value = "single";
           document.getElementById("form"+i).checked = "checked";
           document.getElementById("form"+i).type="checkbox";
           document.getElementById("from_year_form"+i).type="text";
@@ -186,7 +186,7 @@ end
     document.getElementById("multiple_year_form").onclick = function(){
       for(let i = 0; i < 10; i++){
         if(document.getElementById("form"+i).value == ""){
-          document.getElementById("form"+i).value = "checked";
+          document.getElementById("form"+i).value = "multiple";
           document.getElementById("form"+i).checked = "checked";
           document.getElementById("form"+i).type="checkbox";
           document.getElementById("from_year_form"+i).type="text";
@@ -212,7 +212,7 @@ end
 
     for(let i = 0; i < 10; i++)
     {
-      if(document.getElementById("form"+i).value == "checked"){
+      if(document.getElementById("form"+i).value == "single" || document.getElementById("form"+i).value == "multiple"){
         document.getElementById("form"+i).checked = "checked";
       }
     }
@@ -484,13 +484,56 @@ if send_url != "" && send_url != used_url
     document_html = doc_info_controller.get(send_url, "SDM", "SDM")
     document_informations = doc_info_controller.parse(document_html)
     $statistics_year = []
-    for i in 2009 .. 2021
-      $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,i))
+    years = []
+    forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
+    from_year_forms = [from_year_form0, from_year_form1, from_year_form2, from_year_form3, from_year_form4, from_year_form5, from_year_form6, from_year_form7, from_year_form8, from_year_form9]
+    to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
+    # 年度入力フォームに何も入力されていないとき
+    if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
+      form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
+      for i in 2008 .. 2100
+        years.push(i)
+      end
+    else # 年度選択がされているとき
+      forms.each_with_index do |form, i|
+        if form == "single" && from_year_forms[i] != ""
+          years.push(from_year_forms[i].to_i)
+        elsif form == "multiple"
+          if from_year_forms[i] != "" && to_year_forms[i] != ""
+            for i in from_year_forms[i].to_i .. to_year_forms[i].to_i
+              years.push(i)
+            end
+          elsif from_year_forms[i] != ""
+            for i in from_year_forms[i].to_i .. 2100
+              years.push(i)
+            end
+          elsif to_year_forms[i] != ""
+            for i in 2000 .. to_year_forms[i].to_i
+              years.push(i)
+            end
+          end
+        end
+      end
+    end
+    years = years.uniq # 年度の重複を取り除く
+    #years = years.sort.reverse # 年度を降順に並び替える
+    years.each do |select_year|
+      $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
     end
 
     for document_information in document_informations
       statistics_info_controller.push(document_information.group, document_information.remarks)
       doc_info_controller.update_url(send_url)
+    end
+
+    # 使われていない年度を削除
+    $statistics_year.each do |single_year|
+      if single_year.product_number == []
+        years.delete(single_year.year)
+      end
+    end
+    $statistics_year.delete_if do |single_year|
+      single_year.product_number == []
     end
 
   rescue OpenURI::HTTPError
@@ -529,7 +572,7 @@ if send_url != "" && send_url != used_url
           group_name_len = single_year.group_name.length
         end
       end
-      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
     end
     statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
   end
@@ -568,7 +611,7 @@ if send_url != "" && send_url != used_url
           group_name_len = single_year.group_name.length
         end
       end
-      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021])
+      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
     end
 
     download_filepath = statistics_info_controller.download_table("", "", "")
