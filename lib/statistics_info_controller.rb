@@ -117,17 +117,23 @@ class StatisticsInfoController
         table = Array.new(product_number.length)
 
         label = ["成果物通番","成果物名"]
-        label.concat group_name
+        sort_name = group_name.sort
+        g_name = group_name.each_with_index.sort
+        label.concat sort_name
 
         product_number.length.times do |i|
             table[i] = [product_number[i],product_name[i]]
             group_name.length.times do |j|
-                table[i].push(submission_number[j][i])
+                table[i].push(submission_number[g_name[j][1]][i])
             end
         end
 
         botomlabel = ["提出回数平均",""]
-        botomlabel.concat submission_average
+        average = []
+        submission_average.length.times do |n|
+            average.push(submission_average[g_name[n][1]])
+        end
+        botomlabel.concat average
 
         table.unshift label
         table.push botomlabel
@@ -138,14 +144,22 @@ class StatisticsInfoController
     def create_multiple_years_table(group_name,submission_average,years)
         table = Array.new($statistics_year.length)
         label = [""]
-        label.concat group_name
 
         $statistics_year.each_with_index do |data,i|
+            sort_name = data.group_name.sort
+            g_name = data.group_name.each_with_index.sort
+
             line = []
             line.push(data.year)
-            line.concat data.submission_average
+            average = []
+            data.group_name.length.times do |n|
+                average.push(data.submission_average[g_name[n][1]])
+            end
+            line.concat average
             table[i] = line
+            label = sort_name if label.length < sort_name.length
         end
+        label.unshift ""
         table.unshift label
         return table
     end
@@ -210,9 +224,11 @@ class StatisticsInfoController
 
     def push (group="0年度0班", remarks = "0-000-nodata-0")
         gr_sl = group.split("年度")
+        return 1 if gr_sl[1] == nil
         rem_sl = remarks.split("-",3)
-        begin
-            rem_rpar = rem_sl[2].rpartition("-")
+        rem_sl[2] = "split_error" if rem_sl[2] == nil
+
+        rem_rpar = rem_sl[2].rpartition("-")
 
             $statistics_year.each do |data|
                 if data.year == gr_sl[0].to_i then
@@ -233,32 +249,21 @@ class StatisticsInfoController
                             data.product_name.push(rem_rpar[0])
 
                             data.submission_number[i].push(1)
-
-                            sum = 0
-                            data.submission_number[i].each do |num|
-                                sum += num
-                            end
-                            data.submission_sum[i] = sum
-
-                            ave = (data.submission_sum[i].to_f / data.submission_number[i].length.to_f).round(2)
-                            data.submission_average[i] = ave
                         else
                             data.submission_number[i][j] = data.submission_number[i][j].to_i + 1
-                            sum = 0
-                            data.submission_number[i].each do |num|
-                                sum += num
-                            end
-                            data.submission_sum[i] = sum
-
-                            ave = (data.submission_sum[i].to_f / data.submission_number[i].length.to_f).round(2)
-                            data.submission_average[i] = ave
                         end
+
+                        sum = 0
+                        data.submission_number[i].each do |num|
+                            sum += num unless num == nil
+                        end
+                        data.submission_sum[i] = sum
+
+                        ave = (data.submission_sum[i].to_f / data.submission_number[i].length.to_f).round(2)
+                        data.submission_average[i] = ave
                     end
                 end
             end
-        rescue
-            return 1
-        end
         return 0
     end
 end
