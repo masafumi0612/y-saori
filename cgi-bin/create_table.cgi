@@ -3,6 +3,7 @@
 require 'cgi'
 require 'cgi/session'
 require "cgi/escape"
+require 'json'
 require_relative '../lib/source_url_controller'
 require_relative '../lib/document_info_controller'
 require_relative '../lib/document_info'
@@ -297,8 +298,7 @@ def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   EOF_HTML
 end
 
-def html_print_and_download(print_select, download_select, msg, used_url, statistics_year)
-  statistics_year_escaped = CGI.escapeHTML(statistics_year.to_s)
+def html_print_and_download(print_select, download_select, msg, used_url)
   return <<~EOF_HTML
   <table border="0">
   <tr>
@@ -306,7 +306,6 @@ def html_print_and_download(print_select, download_select, msg, used_url, statis
   <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
   <input name="msg" type="hidden" value="#{msg}">
   <input name="used_url" type="hidden" value="#{used_url}">
-  <input name="statistics_year" type="hidden" value="#{statistics_year_escaped}">
   </td>
   <td><input id="download" type="submit" value="ダウンロード"/>
   <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
@@ -437,8 +436,6 @@ password = params['password'].to_s
 
 used_url = params['used_url'].to_s
 
-statistics_year = params['statistics_year']
-
 if session == nil
   session = CGI::Session.new(params, {"new_session"=>true})
 else
@@ -470,11 +467,16 @@ content << html_select_tables_and_graph(single_select, multiple_select, graph_se
 msg = "結果が表示できました．"
 
 #send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
+#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
 #single_select = "checked"
 #multiple_select = "checked"
 #graph_select = "checked"
 #print_select = "click"
 #download_select = "click"
+#form0 = "single"
+#form0 = "multiple"
+#from_year_form0 = "2017"
+#to_year_form0 = "2021"
 
 doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
@@ -483,64 +485,82 @@ if send_url != "" && send_url != used_url
   begin
     document_html = doc_info_controller.get(send_url, "SDM", "SDM")
     document_informations = doc_info_controller.parse(document_html)
-    $statistics_year = []
-    years = []
-    forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
-    from_year_forms = [from_year_form0, from_year_form1, from_year_form2, from_year_form3, from_year_form4, from_year_form5, from_year_form6, from_year_form7, from_year_form8, from_year_form9]
-    to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
-    # 年度入力フォームに何も入力されていないとき
-    if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
-      form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
-      for i in 2008 .. 2100
-        years.push(i)
-      end
-    else # 年度選択がされているとき
-      forms.each_with_index do |form, i|
-        if form == "single" && from_year_forms[i] != ""
-          years.push(from_year_forms[i].to_i)
-        elsif form == "multiple"
-          if from_year_forms[i] != "" && to_year_forms[i] != ""
-            for i in from_year_forms[i].to_i .. to_year_forms[i].to_i
-              years.push(i)
-            end
-          elsif from_year_forms[i] != ""
-            for i in from_year_forms[i].to_i .. 2100
-              years.push(i)
-            end
-          elsif to_year_forms[i] != ""
-            for i in 2000 .. to_year_forms[i].to_i
-              years.push(i)
-            end
-          end
-        end
-      end
+    hash = []
+    document_informations.each do |info|
+      new_hash = {"group" => info.group, "remarks" => info.remarks}
+      hash.push(new_hash)
     end
-    years = years.uniq # 年度の重複を取り除く
-    #years = years.sort.reverse # 年度を降順に並び替える
-    years.each do |select_year|
-      $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
-    end
-
-    for document_information in document_informations
-      statistics_info_controller.push(document_information.group, document_information.remarks)
-      doc_info_controller.update_url(send_url)
-    end
-
-    # 使われていない年度を削除
-    $statistics_year.each do |single_year|
-      if single_year.product_number == []
-        years.delete(single_year.year)
-      end
-    end
-    $statistics_year.delete_if do |single_year|
-      single_year.product_number == []
+    File.open("../database/document_info.json", 'w') do |file|
+        pretty = JSON.pretty_generate(hash)
+        file.puts pretty
     end
 
   rescue OpenURI::HTTPError
     basic_flag = 1
   end
-  statistics_year = $statistics_year
-  $statistics_year = statistics_year
+elsif send_url != "" && send_url == used_url
+  document_informations = []
+  hash = File.open("../database/document_info.json", 'r') do |file|
+    JSON.load(file)
+  end
+  hash.each do |v|
+    document_informations.push(DocumentInfo.new(v["group"], v["remarks"]))
+ end
+end
+
+if send_url != ""
+  $statistics_year = []
+  years = []
+  forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
+  from_year_forms = [from_year_form0, from_year_form1, from_year_form2, from_year_form3, from_year_form4, from_year_form5, from_year_form6, from_year_form7, from_year_form8, from_year_form9]
+  to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
+  # 年度入力フォームに何も入力されていないとき
+  if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
+    form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
+    for i in 2008 .. 2100
+      years.push(i)
+    end
+  else # 年度選択がされているとき
+    forms.each_with_index do |form, i|
+      if form == "single" && from_year_forms[i] != ""
+        years.push(from_year_forms[i].to_i)
+      elsif form == "multiple"
+        if from_year_forms[i] != "" && to_year_forms[i] != ""
+          for i in from_year_forms[i].to_i .. to_year_forms[i].to_i
+            years.push(i)
+          end
+        elsif from_year_forms[i] != ""
+          for i in from_year_forms[i].to_i .. 2100
+            years.push(i)
+          end
+        elsif to_year_forms[i] != ""
+          for i in 2000 .. to_year_forms[i].to_i
+            years.push(i)
+          end
+        end
+      end
+    end
+  end
+  years = years.uniq # 年度の重複を取り除く
+  #years = years.sort.reverse # 年度を降順に並び替える
+  years.each do |select_year|
+    $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
+  end
+
+  for document_information in document_informations
+    statistics_info_controller.push(document_information.group, document_information.remarks)
+    doc_info_controller.update_url(send_url)
+  end
+
+  # 使われていない年度を削除
+  $statistics_year.each do |single_year|
+    if single_year.product_number == []
+      years.delete(single_year.year)
+    end
+  end
+  $statistics_year.delete_if do |single_year|
+    single_year.product_number == []
+  end
 
   if print_select == "click"
     if single_select == "checked"
@@ -622,7 +642,7 @@ end
 
 used_url = send_url
 
-content << html_print_and_download(print_select, download_select, msg, used_url, statistics_year)
+content << html_print_and_download(print_select, download_select, msg, used_url)
 
 #begin
 #  if basic_flag == 1
