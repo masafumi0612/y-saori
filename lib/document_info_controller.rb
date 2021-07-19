@@ -30,7 +30,8 @@ class DocumentInfoController
             doc_r = doc_i[7].children.to_s
             doc_g = doc_g.gsub("\n", "")
             doc_r = doc_r.gsub("\n", "")
-            if doc_g.include?("講義資料")
+            #if doc_g.include?("講義資料")
+            if doc_r.scan("-").length != 4 || doc_i[4].children.to_s.include?("議事録")
                 i = i + 1
             else
                 doc_gr.push(DocumentInfo.new(doc_g, doc_r))

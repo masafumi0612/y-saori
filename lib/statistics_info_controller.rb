@@ -85,9 +85,13 @@ class StatisticsInfoController
                 text << "<table border=1>\n"
                 for products in single_year
                     text << "<tr>\n"
-                    for cell in products
+                    products.each_with_index do |cell, i|
                         text << "<td>\n"
-                        text << cell.to_s
+                        if cell.to_s == "" && i >= 2
+                            text << "0"
+                        else
+                            text << cell.to_s
+                        end
                         text << "</td>\n"
                     end
                     text << "</tr>\n"
@@ -161,6 +165,7 @@ class StatisticsInfoController
         end
         label.unshift ""
         table.unshift label
+
         return table
     end
 
@@ -233,33 +238,43 @@ class StatisticsInfoController
             $statistics_year.each do |data|
                 if data.year == gr_sl[0].to_i then
                     unless i = data.group_name.find_index{|name|name == gr_sl[1]} then
+                        i = data.group_name.length
                         data.group_name.push(gr_sl[1])
 
-                        data.product_number.push(rem_sl[1])
-                        data.product_name.push(rem_rpar[0])
+                        unless j = data.product_number.find_index{|num|num == rem_sl[1]} then
+                            j = data.product_number.length
+                            data.product_number.push(rem_sl[1])
+                            data.product_name.push(rem_rpar[0])
+                        end
 
                         data.submission_number.push([])
-                        data.submission_number[data.submission_number.length-1].push(1)
+                        data.submission_number[i][j] = 1
 
                         data.submission_sum.push(1)
                         data.submission_average.push(1.0)
                     else
                         unless j = data.product_number.find_index{|num|num == rem_sl[1]} then
+                            j = data.product_number.length
                             data.product_number.push(rem_sl[1])
                             data.product_name.push(rem_rpar[0])
 
-                            data.submission_number[i].push(1)
+                            data.submission_number[i][j] = 1
                         else
                             data.submission_number[i][j] = data.submission_number[i][j].to_i + 1
                         end
 
                         sum = 0
+                        nnum = 0
                         data.submission_number[i].each do |num|
-                            sum += num unless num == nil
+                            unless num == nil then
+                                sum += num
+                            else
+                                nnum += 1
+                            end
                         end
                         data.submission_sum[i] = sum
 
-                        ave = (data.submission_sum[i].to_f / data.submission_number[i].length.to_f).round(2)
+                        ave = (data.submission_sum[i].to_f / (data.submission_number[i].length-nnum).to_f).round(2)
                         data.submission_average[i] = ave
                     end
                 end
