@@ -340,7 +340,7 @@ def html_basic_dialog(username, password)
   EOF_HTML
 end
 
-def html_download_script(download_filepath)
+def html_download_script(download_filename)
   return <<~EOF_HTML
   <script>
   function downloadFromUrlAutomatically(url, fileName){
@@ -362,7 +362,7 @@ def html_download_script(download_filepath)
     xhr.send();
   }
 
-  downloadFromUrlAutomatically('http://localhost/y-saori/cgi-bin/#{download_filepath}', "#{download_filepath}");
+  downloadFromUrlAutomatically('../archives/#{download_filename}', "#{download_filename}");
   </script>
 
   EOF_HTML
@@ -466,7 +466,6 @@ content << html_select_tables_and_graph(single_select, multiple_select, graph_se
 
 msg = "結果が表示できました．"
 
-#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
 #send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
 #single_select = "checked"
 #multiple_select = "checked"
@@ -598,16 +597,18 @@ if send_url != ""
   end
 
   if download_select == "click"
+    single_year_file_name = []
     if single_select == "checked"
       single_year_table = []
       $statistics_year.each do |single_year|
         single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, single_year.year))
       end
       single_year_table.zip($statistics_year) do |single_year, a|
-        statistics_info_controller.create_single_year_csv_file(single_year, a.year)
+        single_year_file_name.push(statistics_info_controller.create_single_year_csv_file(single_year, a.year))
       end
     end
 
+    multiple_year_file_name = ""
     if multiple_select == "checked"
       group_name_len = 0
       i_tmp = 0
@@ -618,7 +619,7 @@ if send_url != ""
         end
       end
       multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
-      multiple_year_table_csv = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
+      multiple_year_file_name = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
     end
 
     graph_file_name = ""
@@ -634,8 +635,10 @@ if send_url != ""
       graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
     end
 
-    download_filepath = statistics_info_controller.download_table("", "", "")
-    content << html_download_script(download_filepath)
+    download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
+    if download_filename != ""
+      content << html_download_script(download_filename)
+    end
   end
 
 end

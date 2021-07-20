@@ -2,51 +2,8 @@ require 'csv'
 require 'gruff'
 require 'rubygems'
 require 'zip'
+require "fileutils"
 require_relative '../lib/statistics_info'
-
-class ZipFileGenerator
-    # Initialize with the directory to zip and the location of the output archive.
-    def initialize(input_dir, output_file)
-      @input_dir = input_dir
-      @output_file = output_file
-    end
-    # Zip the input directory.
-    def write
-      entries = Dir.entries(@input_dir) - %w(. ..)
-
-      ::Zip::File.open(@output_file, ::Zip::File::CREATE) do |io|
-        write_entries entries, '', io
-      end
-    end
-    private
-
-    # A helper method to make the recursion work.
-    def write_entries(entries, path, io)
-      entries.each do |e|
-        zip_file_path = path == '' ? e : File.join(path, e)
-        disk_file_path = File.join(@input_dir, zip_file_path)
-        puts "Deflating #{disk_file_path}"
-
-        if File.directory? disk_file_path
-          recursively_deflate_directory(disk_file_path, io, zip_file_path)
-        else
-          put_into_archive(disk_file_path, io, zip_file_path)
-        end
-      end
-    end
-
-    def recursively_deflate_directory(disk_file_path, io, zip_file_path)
-      io.mkdir zip_file_path
-      subdir = Dir.entries(disk_file_path) - %w(. ..)
-      write_entries subdir, zip_file_path, io
-    end
-
-    def put_into_archive(disk_file_path, io, zip_file_path)
-      io.get_output_stream(zip_file_path) do |f|
-        f.write(File.open(disk_file_path, 'rb').read)
-      end
-    end
-  end
 
 class StatisticsInfoController
     def initialize()
@@ -102,18 +59,36 @@ class StatisticsInfoController
 
 
         return text
-        #creat table html
     end
 
     def download_table(create_single_year_csv_file, create_multiple_years_csv_file, create_graph)
-        #downlod
-        folder_path = "../downloads"
-        zipfile_path = "../archive.zip"
+        input_filenames = create_single_year_csv_file
+        if create_multiple_years_csv_file != ""
+            input_filenames.push(create_multiple_years_csv_file)
+        end
+        if create_graph != ""
+            input_filenames.push(create_graph)
+        end
+        download_folder_path = "../downloads/"
+        zip_folder_path = "../archives/"
+        zipfile_name = "archive.zip"
 
-        zip_file_generator = ZipFileGenerator.new(folder_path, zipfile_path)
-        zip_file_generator.write
+        if input_filenames.length == 0
+            return ""
+        elsif input_filenames.length == 1
+            FileUtils.cp("#{download_folder_path}#{input_filenames[0]}", "#{zip_folder_path}#{input_filenames[0]}")
+            return "#{input_filenames[0]}"
+        end
 
-        return zipfile_path
+        if File.exist?("#{zip_folder_path}#{zipfile_name}")
+            File.delete("#{zip_folder_path}#{zipfile_name}")
+        end
+        Zip::File.open("#{zip_folder_path}#{zipfile_name}", create: true) do |zipfile|
+            input_filenames.each do |filename|
+                zipfile.add(filename, File.join(download_folder_path, filename))
+            end
+        end
+        return zipfile_name
     end
 
     def create_single_year_table(product_number,product_name,group_name,
@@ -202,7 +177,7 @@ class StatisticsInfoController
 
         g.write('../downloads/average.png')
 
-        return '../downloads/average.png'
+        return 'average.png'
     end
 
     def create_single_year_csv_file (s_y_table, year)
@@ -212,8 +187,11 @@ class StatisticsInfoController
             end
         end
 
-        File.open("../downloads/#{year}.csv", 'w').puts s_y_csv
-        return s_y_csv
+        File.open("../downloads/#{year}.csv", 'w') do |f|
+            f.flock(File::LOCK_EX)
+            f.puts s_y_csv
+        end
+        return "#{year}.csv"
     end
 
     def create_multiple_years_csv_file(m_y_table)
@@ -223,8 +201,11 @@ class StatisticsInfoController
             end
         end
 
-        File.open("../downloads/multiple_year.csv", 'w').puts m_y_csv
-        return m_y_csv
+        File.open("../downloads/multiple_year.csv", 'w') do |f|
+            f.flock(File::LOCK_EX)
+            f.puts m_y_csv
+        end
+        return "multiple_year.csv"
     end
 
     def push (group="0年度0班", remarks = "0-000-nodata-0")
