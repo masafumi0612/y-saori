@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'csv'
 require 'gruff'
 require 'rubygems'

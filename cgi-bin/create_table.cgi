@@ -370,7 +370,7 @@ end
 
 def html_foot
   return <<~EOF_HTML
-  <a href="../html/index.html">トップへ戻る</a>
+  <a href="../index.html">TOPへ戻る</a>
   </form>
   </center>
   </body>

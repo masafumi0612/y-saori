@@ -96,7 +96,7 @@ def html_foot
     <input type="submit" value="削除">
     <input name="submit_flag" type="hidden" value="on">
     </form>
-    <a href="../html/index.html">TOPへ戻る</a>
+    <a href="../index.html">TOPへ戻る</a>
     <script>
     function check(){
       if(window.confirm('選択した項目を削除しますか？')){

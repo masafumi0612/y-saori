@@ -1,4 +1,6 @@
+require 'bundler/setup'
 require 'open-uri'
+require 'rubygems'
 require 'nokogiri'
 require_relative 'document_info'
 
