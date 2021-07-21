@@ -19,6 +19,7 @@ def html_head
     <head>
     <title>文書管理情報取得元入力</title>
     <meta http-equiv="content-type" charset="utf-8">
+    <link rel="stylesheet" href="../html/style.css">
     </head>
     <center>
     <body>
@@ -54,15 +55,15 @@ def html_body
   <form action="delete_url.cgi" method="POST" class="form-example" onSubmit="return check()">
   <table border=1 bgcolor =#FFFFFF>
       <tr>
-        <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">No</td>
-        <td>
-          <input type="text" value="URL" readonly>
+        <td bgcolor =#CCFFFF rowspan="2" width="40" align="center">No</td>
+        <td class="register_text">
+          <input type="text" class="register_text" value="URL" readonly>
         </td>
-        <td rowspan="2" width="25"></td>
+        <td rowspan="2" width="40"></td>
       </tr>
       <tr>
-        <td>
-          <input type="text" value="登録名" readonly>
+        <td class="register_text">
+          <input type="text" class="register_text" value="登録名" readonly>
         </td>
       </tr>
     </table><br>
@@ -73,17 +74,17 @@ def html_checkbox(url, register_name,i)
   return <<~EOF_HTML
     <table border=1 bgcolor =#FFFFFF>
       <tr>
-        <td bgcolor =#CCFFFF rowspan="2" width="25" align="center">#{i}</td>
-        <td>
-          <input type="text" name="#{i}" value="#{url}" readonly>
+        <td bgcolor =#CCFFFF rowspan="2" class="del_index" align="center">#{i}</td>
+        <td class="register_text">
+          <input type="text" name="#{i}" value="#{url}" class="register_text" readonly>
         </td>
-        <td rowspan="2" width="25" align="center">
-          <input type="checkbox" name="info_num" value="#{i}">
+        <td rowspan="2" class="del_index" align="center">
+          <input type="checkbox" name="info_num" value="#{i}" style="transform:scale(1.2);">
         </td>
       </tr>
       <tr>
-        <td>
-          <input type="text" name="#{i}" value="#{register_name}" readonly>
+        <td class="register_text">
+          <input type="text" name="#{i}" value="#{register_name}" class="register_text" readonly>
         </td>
       </tr>
     </table>
