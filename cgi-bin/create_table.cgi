@@ -34,9 +34,8 @@ def html_message(msg)
   <p>#{msg}</p>
   EOF_HTML
 end
-
 def html_url_table(url_list, send_url)
-  pulldown_list = url_pulldown(url_list)
+  pulldown_list = url_pulldown(send_url, url_list)
   return <<~EOF_HTML
   <p><font color=#CC0000>※登録済みのURLから一つ選択してください</font></p>
   <table border=1 bgcolor =#FFFFFF>
@@ -54,15 +53,23 @@ def html_url_table(url_list, send_url)
   EOF_HTML
 end
 
-def url_pulldown(url_list)
+def url_pulldown(send_url, url_list)
   pulldown_list = ""
-  pulldown_list << "<option value = "">""</option>\n"
-  i = 2
+  if send_url == ""
+    pulldown_list << "<option value = "">""</option>\n"
+  else
+    for url_and_name in url_list
+      if send_url == '#{url_and_name["url"]'
+        pulldown = "<option value = #{url_and_name["url"]}>#{content}</option>\n"
+        break
+      end
+    end
+  end
+
   for url_and_name in url_list
     content = "#{url_and_name["register_name"]}(#{url_and_name["url"]})"
     pulldown = "<option value = #{url_and_name["url"]}>#{content}</option>\n"
     pulldown_list << pulldown
-    i = i + 1
   end
   return pulldown_list
 end
@@ -108,63 +115,63 @@ end
   <table>
   <tr>
   <td><input type="#{forms_type[0]}" name="form0" id="form0" value="#{form0}"></td>
-  <td><input type="#{from_year_forms_type[0]}" name="from_year_form0" id="from_year_form0" value="#{from_year_form0}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[0]}" name="from_year_form0" id="from_year_form0" value="#{from_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form0_wave">#{waves[0]}</div></td>
-  <td><input type="#{to_year_forms_type[0]}" name="to_year_form0" id="to_year_form0" value="#{to_year_form0}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[0]}" name="to_year_form0" id="to_year_form0" value="#{to_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[1]}" name="form1" id="form1" value='#{form1}'></td>
-  <td><input type="#{from_year_forms_type[1]}" name="from_year_form1" id="from_year_form1" value="#{from_year_form1}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[1]}" name="from_year_form1" id="from_year_form1" value="#{from_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form1_wave">#{waves[1]}</div></td>
-  <td><input type="#{to_year_forms_type[1]}" name="to_year_form1" id="to_year_form1" value="#{to_year_form1}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[1]}" name="to_year_form1" id="to_year_form1" value="#{to_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[2]}" name="form2" id="form2" value='#{form2}'></td>
-  <td><input type="#{from_year_forms_type[2]}" name="from_year_form2" id="from_year_form2" value="#{from_year_form2}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[2]}" name="from_year_form2" id="from_year_form2" value="#{from_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form2_wave">#{waves[2]}</div></td>
-  <td><input type="#{to_year_forms_type[2]}" name="to_year_form2" id="to_year_form2" value="#{to_year_form2}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[2]}" name="to_year_form2" id="to_year_form2" value="#{to_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[3]}" name="form3" id="form3" value='#{form3}'></td>
-  <td><input type="#{from_year_forms_type[3]}" name="from_year_form3" id="from_year_form3" value="#{from_year_form3}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[3]}" name="from_year_form3" id="from_year_form3" value="#{from_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form3_wave">#{waves[3]}</div></td>
-  <td><input type="#{to_year_forms_type[3]}" name="to_year_form3" id="to_year_form3" value="#{to_year_form3}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[3]}" name="to_year_form3" id="to_year_form3" value="#{to_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[4]}" name="form4" id="form4" value='#{form4}'></td>
-  <td><input type="#{from_year_forms_type[4]}" name="from_year_form4" id="from_year_form4" value="#{from_year_form4}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[4]}" name="from_year_form4" id="from_year_form4" value="#{from_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form4_wave">#{waves[4]}</div></td>
-  <td><input type="#{to_year_forms_type[4]}" name="to_year_form4" id="to_year_form4" value="#{to_year_form4}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[4]}" name="to_year_form4" id="to_year_form4" value="#{to_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[5]}" name="form5" id="form5" value='#{form5}'></td>
-  <td><input type="#{from_year_forms_type[5]}" name="from_year_form5" id="from_year_form5" value="#{from_year_form5}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[5]}" name="from_year_form5" id="from_year_form5" value="#{from_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form5_wave">#{waves[5]}</div></td>
-  <td><input type="#{to_year_forms_type[5]}" name="to_year_form5" id="to_year_form5" value="#{to_year_form5}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[5]}" name="to_year_form5" id="to_year_form5" value="#{to_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[6]}" name="form6" id="form6" value='#{form6}'></td>
-  <td><input type="#{from_year_forms_type[6]}" name="from_year_form6" id="from_year_form6" value="#{from_year_form6}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[6]}" name="from_year_form6" id="from_year_form6" value="#{from_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form6_wave">#{waves[6]}</div></td>
-  <td><input type="#{to_year_forms_type[6]}" name="to_year_form6" id="to_year_form6" value="#{to_year_form6}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[6]}" name="to_year_form6" id="to_year_form6" value="#{to_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[7]}" name="form7" id="form7" value='#{form7}'></td>
-  <td><input type="#{from_year_forms_type[7]}" name="from_year_form7" id="from_year_form7" value="#{from_year_form7}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[7]}" name="from_year_form7" id="from_year_form7" value="#{from_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form7_wave">#{waves[7]}</div></td>
-  <td><input type="#{to_year_forms_type[7]}" name="to_year_form7" id="to_year_form7" value="#{to_year_form7}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[7]}" name="to_year_form7" id="to_year_form7" value="#{to_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[8]}" name="form8" id="form8" value='#{form8}'></td>
-  <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form8_wave">#{waves[8]}</div></td>
-  <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value="#{to_year_form8}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value="#{to_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[9]}" name="form9" id="form9" value='#{form9}'></td>
-  <td><input type="#{from_year_forms_type[9]}" name="from_year_form9" id="from_year_form9" value="#{from_year_form9}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{from_year_forms_type[9]}" name="from_year_form9" id="from_year_form9" value="#{from_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   <td><div id="form9_wave">#{waves[9]}</div></td>
-  <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value="#{to_year_form9}" size="4" maxlength="4" pattern="[1-9][0-9]{3}" required></td>
+  <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value="#{to_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   </table>
   <table border="1">
@@ -516,7 +523,7 @@ if send_url != ""
   # 年度入力フォームに何も入力されていないとき
   if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
     form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
-    for i in 2008 .. 2100
+    for i in 2000 .. 2100
       years.push(i)
     end
   else # 年度選択がされているとき
