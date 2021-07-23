@@ -55,12 +55,16 @@ end
 
 def url_pulldown(send_url, url_list)
   pulldown_list = ""
+  #pulldown_list << "<option value = #{send_url}>#{send_url}</option>\n"
   if send_url == ""
     pulldown_list << "<option value = "">""</option>\n"
   else
     for url_and_name in url_list
-      if send_url == '#{url_and_name["url"]'
+      if send_url == url_and_name["url"]
+        content = "#{url_and_name["register_name"]}(#{url_and_name["url"]})"
         pulldown = "<option value = #{url_and_name["url"]}>#{content}</option>\n"
+        pulldown_list << pulldown
+        pulldown_list << "<option value = "">""</option>\n"
         break
       end
     end
@@ -449,6 +453,195 @@ else
   session = CGI::Session.new(params, {"new_session"=>true})
 end
 
+#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
+#single_select = "checked"
+#multiple_select = "checked"
+#graph_select = "checked"
+#print_select = "click"
+#download_select = "click"
+#form0 = "single"
+#form0 = "multiple"
+#from_year_form0 = "2017"
+#to_year_form0 = "2021"
+doc_info_controller = DocumentInfoController.new
+statistics_info_controller = StatisticsInfoController.new
+statistics_table_result = ""
+if send_url != ""
+  if send_url != used_url # 初めてのURLにアクセスするとき
+    begin
+      document_html = doc_info_controller.get(send_url, "SDM", "SDM")
+      document_informations = doc_info_controller.parse(document_html)
+      hash = []
+      if document_informations != []
+        document_informations.each do |info|
+          new_hash = {"group" => info.group, "remarks" => info.remarks}
+          hash.push(new_hash)
+        end
+        File.open("../database/document_info.json", 'w') do |file|
+            pretty = JSON.pretty_generate(hash)
+            file.puts pretty
+        end
+      end
+    rescue OpenURI::HTTPError  # 401 authorization required のとき
+      basic_flag = 1
+    rescue Errno::ENOENT, SocketError # 選択したURLが存在しないとき
+      #msg = "選択したURLにはアクセスできません．存在しないURLにアクセスしている可能性があります．"
+    end
+  elsif send_url == used_url # 前回と同じURLにアクセスするとき
+    document_informations = []
+    hash = File.open("../database/document_info.json", 'r') do |file|
+      JSON.load(file)
+    end
+    hash.each do |v|
+      document_informations.push(DocumentInfo.new(v["group"], v["remarks"]))
+    end
+  end
+  if document_informations == nil # URLにアクセスできないとき
+    msg = "選択したURLにはアクセスできません．存在しないURLにアクセスしている可能性があります．"
+  elsif document_informations == [] # 選択したURLが文書管理システムではないとき
+    msg = "文書管理情報が取得できません．選択したアクセス先が文書管理システムではない可能性があります．"
+  else # 文書管理システムにアクセスできたとき
+    $statistics_year = []
+    years = []
+    forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
+    from_year_forms = [from_year_form0, from_year_form1, from_year_form2, from_year_form3, from_year_form4, from_year_form5, from_year_form6, from_year_form7, from_year_form8, from_year_form9]
+    to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
+    # 年度入力フォームに何も入力されていないとき
+    if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
+      form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
+      for i in 2000 .. 2100
+        years.push(i)
+      end
+    else # 年度選択がされているとき
+      forms.each_with_index do |form, i|
+        if form == "single" && from_year_forms[i] != ""
+          years.push(from_year_forms[i].to_i)
+        elsif form == "multiple"
+          if from_year_forms[i] != "" && to_year_forms[i] != ""
+            for i in from_year_forms[i].to_i .. to_year_forms[i].to_i
+              years.push(i)
+            end
+          elsif from_year_forms[i] != ""
+            for i in from_year_forms[i].to_i .. 2100
+              years.push(i)
+            end
+          elsif to_year_forms[i] != ""
+            for i in 2000 .. to_year_forms[i].to_i
+              years.push(i)
+            end
+          end
+        end
+      end
+    end
+    years = years.uniq # 年度の重複を取り除く
+    #years = years.sort.reverse # 年度を降順に並び替える
+    years.each do |select_year|
+      $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
+    end
+
+    for document_information in document_informations
+      statistics_info_controller.push(document_information.group, document_information.remarks)
+      doc_info_controller.update_url(send_url)
+    end
+
+    # 使われていない年度を削除
+    $statistics_year.each do |single_year|
+      if single_year.product_number == []
+        years.delete(single_year.year)
+      end
+    end
+    $statistics_year.delete_if do |single_year|
+      single_year.product_number == []
+    end
+
+    if years == [] # 表示できる年度がないとき
+      msg = "選択した年度は表示できません．"
+    else
+      if print_select == "click"
+        if single_select == "checked"
+          single_year_table = []
+          $statistics_year.each do |single_year|
+            single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
+          end
+        end
+
+        if multiple_select == "checked"
+          group_name_len = 0
+          i_tmp = 0
+          $statistics_year.each_with_index do |single_year, i|
+            if group_name_len < single_year.group_name.length
+              i_tmp = i
+              group_name_len = single_year.group_name.length
+            end
+          end
+          multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+        end
+
+        graph_file_name = ""
+        if graph_select == "checked"
+          group_name_len = 0
+          i_tmp = 0
+          $statistics_year.each_with_index do |single_year, i|
+            if group_name_len < single_year.group_name.length
+              i_tmp = i
+              group_name_len = single_year.group_name.length
+            end
+          end
+          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
+        end
+        statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
+      end
+
+      if download_select == "click"
+        single_year_file_name = []
+        if single_select == "checked"
+          single_year_table = []
+          $statistics_year.each do |single_year|
+            single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, single_year.year))
+          end
+          single_year_table.zip($statistics_year) do |single_year, a|
+            single_year_file_name.push(statistics_info_controller.create_single_year_csv_file(single_year, a.year))
+          end
+        end
+
+        multiple_year_file_name = ""
+        if multiple_select == "checked"
+          group_name_len = 0
+          i_tmp = 0
+          $statistics_year.each_with_index do |single_year, i|
+            if group_name_len < single_year.group_name.length
+              i_tmp = i
+              group_name_len = single_year.group_name.length
+            end
+          end
+          multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
+          multiple_year_file_name = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
+        end
+
+        graph_file_name = ""
+        if graph_select == "checked"
+          group_name_len = 0
+          i_tmp = 0
+          $statistics_year.each_with_index do |single_year, i|
+            if group_name_len < single_year.group_name.length
+              i_tmp = i
+              group_name_len = single_year.group_name.length
+            end
+          end
+          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
+        end
+
+        download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
+        if download_filename != ""
+          content << html_download_script(download_filename)
+        end
+      end
+      msg = "結果が表示できました．"
+      used_url = send_url # 選択したURLが文書管理システムであるとき，使用したURLを記録する．
+    end
+  end
+end
+
 source_url_controller = SourceURLController.new
 url_list = source_url_controller.list
 
@@ -470,187 +663,6 @@ content << html_select_year(from_year_form0, to_year_form0, form0,
                             from_year_form9, to_year_form9, form9)
 
 content << html_select_tables_and_graph(single_select, multiple_select, graph_select)
-
-msg = "結果が表示できました．"
-
-#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
-#single_select = "checked"
-#multiple_select = "checked"
-#graph_select = "checked"
-#print_select = "click"
-#download_select = "click"
-#form0 = "single"
-#form0 = "multiple"
-#from_year_form0 = "2017"
-#to_year_form0 = "2021"
-
-doc_info_controller = DocumentInfoController.new
-statistics_info_controller = StatisticsInfoController.new
-statistics_table_result = ""
-if send_url != "" && send_url != used_url
-  begin
-    document_html = doc_info_controller.get(send_url, "SDM", "SDM")
-    document_informations = doc_info_controller.parse(document_html)
-    hash = []
-    document_informations.each do |info|
-      new_hash = {"group" => info.group, "remarks" => info.remarks}
-      hash.push(new_hash)
-    end
-    File.open("../database/document_info.json", 'w') do |file|
-        pretty = JSON.pretty_generate(hash)
-        file.puts pretty
-    end
-
-  rescue OpenURI::HTTPError
-    basic_flag = 1
-  end
-elsif send_url != "" && send_url == used_url
-  document_informations = []
-  hash = File.open("../database/document_info.json", 'r') do |file|
-    JSON.load(file)
-  end
-  hash.each do |v|
-    document_informations.push(DocumentInfo.new(v["group"], v["remarks"]))
- end
-end
-
-if send_url != ""
-  $statistics_year = []
-  years = []
-  forms = [form0, form1, form2, form3, form4, form5, form6, form7, form8, form9]
-  from_year_forms = [from_year_form0, from_year_form1, from_year_form2, from_year_form3, from_year_form4, from_year_form5, from_year_form6, from_year_form7, from_year_form8, from_year_form9]
-  to_year_forms = [to_year_form0, to_year_form1, to_year_form2, to_year_form3, to_year_form4, to_year_form5, to_year_form6, to_year_form7, to_year_form8, to_year_form9]
-  # 年度入力フォームに何も入力されていないとき
-  if form0 == "" && form1 == "" && form2 == "" && form3 == "" && form4 == "" &&
-    form5 == "" && form6 == "" && form7 == "" && form8 == "" && form9 == ""
-    for i in 2000 .. 2100
-      years.push(i)
-    end
-  else # 年度選択がされているとき
-    forms.each_with_index do |form, i|
-      if form == "single" && from_year_forms[i] != ""
-        years.push(from_year_forms[i].to_i)
-      elsif form == "multiple"
-        if from_year_forms[i] != "" && to_year_forms[i] != ""
-          for i in from_year_forms[i].to_i .. to_year_forms[i].to_i
-            years.push(i)
-          end
-        elsif from_year_forms[i] != ""
-          for i in from_year_forms[i].to_i .. 2100
-            years.push(i)
-          end
-        elsif to_year_forms[i] != ""
-          for i in 2000 .. to_year_forms[i].to_i
-            years.push(i)
-          end
-        end
-      end
-    end
-  end
-  years = years.uniq # 年度の重複を取り除く
-  #years = years.sort.reverse # 年度を降順に並び替える
-  years.each do |select_year|
-    $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
-  end
-
-  for document_information in document_informations
-    statistics_info_controller.push(document_information.group, document_information.remarks)
-    doc_info_controller.update_url(send_url)
-  end
-
-  # 使われていない年度を削除
-  $statistics_year.each do |single_year|
-    if single_year.product_number == []
-      years.delete(single_year.year)
-    end
-  end
-  $statistics_year.delete_if do |single_year|
-    single_year.product_number == []
-  end
-
-  if print_select == "click"
-    if single_select == "checked"
-      single_year_table = []
-      $statistics_year.each do |single_year|
-        single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, 2009))
-      end
-    end
-
-    if multiple_select == "checked"
-      group_name_len = 0
-      i_tmp = 0
-      $statistics_year.each_with_index do |single_year, i|
-        if group_name_len < single_year.group_name.length
-          i_tmp = i
-          group_name_len = single_year.group_name.length
-        end
-      end
-      multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
-    end
-
-    graph_file_name = ""
-    if graph_select == "checked"
-      group_name_len = 0
-      i_tmp = 0
-      $statistics_year.each_with_index do |single_year, i|
-        if group_name_len < single_year.group_name.length
-          i_tmp = i
-          group_name_len = single_year.group_name.length
-        end
-      end
-      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
-    end
-    statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
-  end
-
-  if download_select == "click"
-    single_year_file_name = []
-    if single_select == "checked"
-      single_year_table = []
-      $statistics_year.each do |single_year|
-        single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, single_year.year))
-      end
-      single_year_table.zip($statistics_year) do |single_year, a|
-        single_year_file_name.push(statistics_info_controller.create_single_year_csv_file(single_year, a.year))
-      end
-    end
-
-    multiple_year_file_name = ""
-    if multiple_select == "checked"
-      group_name_len = 0
-      i_tmp = 0
-      $statistics_year.each_with_index do |single_year, i|
-        if group_name_len < single_year.group_name.length
-          i_tmp = i
-          group_name_len = single_year.group_name.length
-        end
-      end
-      multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
-      multiple_year_file_name = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
-    end
-
-    graph_file_name = ""
-    if graph_select == "checked"
-      group_name_len = 0
-      i_tmp = 0
-      $statistics_year.each_with_index do |single_year, i|
-        if group_name_len < single_year.group_name.length
-          i_tmp = i
-          group_name_len = single_year.group_name.length
-        end
-      end
-      graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
-    end
-
-    download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
-    if download_filename != ""
-      content << html_download_script(download_filename)
-    end
-  end
-
-end
-
-used_url = send_url
 
 content << html_print_and_download(print_select, download_select, msg, used_url)
 
