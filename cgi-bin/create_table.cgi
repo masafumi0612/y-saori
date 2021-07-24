@@ -466,6 +466,8 @@ end
 doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
 statistics_table_result = ""
+download_result = ""
+
 if send_url != ""
   if send_url != used_url # 初めてのURLにアクセスするとき
     begin
@@ -633,7 +635,7 @@ if send_url != ""
 
         download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
         if download_filename != ""
-          content << html_download_script(download_filename)
+          download_result = html_download_script(download_filename)
         end
       end
       msg = "結果が表示できました．"
@@ -675,6 +677,10 @@ content << html_print_and_download(print_select, download_select, msg, used_url)
 
 if statistics_table_result != ""
   content << statistics_table_result
+end
+
+if download_result != ""
+  content << download_result
 end
 
 content << html_foot
