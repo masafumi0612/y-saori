@@ -35,7 +35,7 @@ class StatisticsInfoController
         end
 
         if create_graph != ""
-            text << '<img src="view_praph.cgi">' << "\n"
+            text << '<img src="view_graph.cgi">' << "\n"
         end
 
         if create_single_year_table
