@@ -328,9 +328,11 @@ def html_print_and_download(print_select, download_select, msg, used_url)
   <script>
   document.getElementById("print").onclick = function() {
     document.getElementById("print_select").value = "click";
+    document.getElementById("download_select").value = "";
   }
   document.getElementById("download").onclick = function() {
     document.getElementById("download_select").value = "click";
+    document.getElementById("print_select").value = "";
   }
   </script>
   EOF_HTML
