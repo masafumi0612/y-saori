@@ -266,7 +266,7 @@ def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   </tr>
   <tr>
   <td><input name="multiple_select" id="multiple_select" type="checkbox" value='#{multiple_select}'></td>
-  <td>提出回数集計表</td>
+  <td>平均提出回数比較表</td>
   </tr>
   <tr>
   <td><input name="graph_select" id="graph_select" type="checkbox" value='#{graph_select}'></td>
@@ -328,9 +328,11 @@ def html_print_and_download(print_select, download_select, msg, used_url)
   <script>
   document.getElementById("print").onclick = function() {
     document.getElementById("print_select").value = "click";
+    document.getElementById("download_select").value = "";
   }
   document.getElementById("download").onclick = function() {
     document.getElementById("download_select").value = "click";
+    document.getElementById("print_select").value = "";
   }
   </script>
   EOF_HTML
@@ -351,7 +353,23 @@ def html_basic_dialog(username, password)
   EOF_HTML
 end
 
-def html_download_script(download_filename)
+def download_csv_content(csv_filename)
+  return <<~EOF_HTML
+  #!/usr/bin/ruby
+  
+  content = ""
+  content << "Content-type: text/csv"
+  content << "\n\n"
+  
+  File.open("../downloads/#{csv_filename}", 'r') do |f|
+    content << f.read()
+    end
+  
+  puts content
+  EOF_HTML
+end
+
+def html_download_script(cgi_filename, download_filename)
   return <<~EOF_HTML
   <script>
   function downloadFromUrlAutomatically(url, fileName){
@@ -373,7 +391,7 @@ def html_download_script(download_filename)
     xhr.send();
   }
 
-  downloadFromUrlAutomatically('../archives/#{download_filename}', "#{download_filename}");
+  downloadFromUrlAutomatically('#{cgi_filename}', "#{download_filename}");
   </script>
 
   EOF_HTML
@@ -634,8 +652,15 @@ if send_url != ""
         end
 
         download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
-        if download_filename != ""
-          download_result = html_download_script(download_filename)
+        if download_filename.include?(".zip")
+          download_result = html_download_script("download_zip.cgi", download_filename)
+        elsif download_filename.include?(".png")
+          download_result = html_download_script("view_graph.cgi", download_filename)
+        elsif download_filename.include?(".csv")
+          File.open("download_csv.cgi", "w") do |f|
+            f.write(download_csv_content(download_filename))
+          end
+          download_result = html_download_script("download_csv.cgi", download_filename)
         end
       end
       msg = "結果が表示できました．"
