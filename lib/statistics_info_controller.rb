@@ -15,6 +15,7 @@ class StatisticsInfoController
         text = ""
 
         if create_multiple_years_table
+            text << "<h3>&lt;平均提出回数比較表&gt;</h3>"
             multiple_year_table_row = create_multiple_years_table[0].length
             text << "<table border=1>\n"
             for single_year in create_multiple_years_table
@@ -35,11 +36,14 @@ class StatisticsInfoController
         end
 
         if create_graph != ""
+            text << "<h3>&lt;平均提出回数比較グラフ&gt;</h3>"
             text << '<img src="view_graph.cgi">' << "\n"
         end
 
         if create_single_year_table
-            for single_year in create_single_year_table
+            text << "<h3>&lt;提出回数集計表&gt;</h3>"
+            create_single_year_table.zip($statistics_year) do |single_year, v|
+                text << "<p>#{v.year}年度</p>"
                 text << "<table border=1>\n"
                 for products in single_year
                     text << "<tr>\n"

@@ -266,7 +266,7 @@ def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   </tr>
   <tr>
   <td><input name="multiple_select" id="multiple_select" type="checkbox" value='#{multiple_select}'></td>
-  <td>提出回数集計表</td>
+  <td>平均提出回数比較表</td>
   </tr>
   <tr>
   <td><input name="graph_select" id="graph_select" type="checkbox" value='#{graph_select}'></td>
