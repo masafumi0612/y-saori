@@ -664,6 +664,7 @@ if send_url != ""
           File.open("download_csv.cgi", "w") do |f|
             f.write(download_csv_content(download_filename))
           end
+          FileUtils.chmod(0755, "download_csv.cgi")
           download_result = html_download_script("download_csv.cgi", download_filename)
         end
       end

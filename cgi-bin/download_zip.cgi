@@ -3,7 +3,7 @@
 content = ""
 content << "Content-type: application/zip\n\n"
 
-File.open("../archives/archive.zip", 'r') do |f|
+File.open("../downloads/archive.zip", 'r') do |f|
   content << f.read()
 end
 

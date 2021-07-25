@@ -75,13 +75,12 @@ class StatisticsInfoController
             input_filenames.push(create_graph)
         end
         download_folder_path = "../downloads/"
-        zip_folder_path = "../archives/"
+        zip_folder_path = "../downloads/"
         zipfile_name = "archive.zip"
 
         if input_filenames.length == 0
             return ""
         elsif input_filenames.length == 1
-            FileUtils.cp("#{download_folder_path}#{input_filenames[0]}", "#{zip_folder_path}#{input_filenames[0]}")
             return "#{input_filenames[0]}"
         end
 
