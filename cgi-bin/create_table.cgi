@@ -4,6 +4,8 @@ require 'cgi'
 require 'cgi/session'
 require "cgi/escape"
 require 'json'
+require 'digest'
+require "fileutils"
 require_relative '../lib/source_url_controller'
 require_relative '../lib/document_info_controller'
 require_relative '../lib/document_info'
@@ -497,7 +499,8 @@ if send_url != ""
           new_hash = {"group" => info.group, "remarks" => info.remarks}
           hash.push(new_hash)
         end
-        File.open("../database/document_info.json", 'w') do |file|
+        url_hash = Digest::SHA256.hexdigest(send_url).encode("UTF-8")
+        File.open("../database/#{url_hash}.json", 'w') do |file|
             pretty = JSON.pretty_generate(hash)
             file.puts pretty
         end
@@ -509,7 +512,8 @@ if send_url != ""
     end
   elsif send_url == used_url # 前回と同じURLにアクセスするとき
     document_informations = []
-    hash = File.open("../database/document_info.json", 'r') do |file|
+    url_hash = Digest::SHA256.hexdigest(send_url).encode("UTF-8")
+    hash = File.open("../database/#{url_hash}.json", 'r') do |file|
       JSON.load(file)
     end
     hash.each do |v|
