@@ -149,6 +149,7 @@ class StatisticsInfoController
     end
 
     def create_graph(group_name, submission_average, year)
+        group_name = group_name.sort
         g = Gruff::Bar.new(900)
 
         g.title = "Average"
@@ -163,24 +164,31 @@ class StatisticsInfoController
         #g.right_margin = 40
         #g.font = '/Library/Fonts/好きなフォント.ttf'
         #g.show_labels_for_bar_values = true
-
         #g.legend_margin = 1.0
+    
         g.minimum_value = 0
         g.y_axis_increment = 1.0
-
+    
         name_data = []
-        group_data = []
+        group_name.each_with_index do |name,i|
+            data_list = []
+            $statistics_year.each do |single_year|
+                if j = single_year.group_name.find_index{|g_name| g_name == name} then
+                    data_list.push(single_year.submission_average[j])
+                else
+                    data_list.push(0)
+                end
+            end
+            g.data name, data_list
+        end
+
         $statistics_year.each_with_index do |data,i|
             name_data.push(i,data.year)
-            group_data[i] = data.group_name
-            group_data[i].each_with_index do |name,i|
-                g.data name, submission_average[i]
-            end
         end
+
         g.labels = Hash[*name_data]
-
         g.write('../downloads/average.png')
-
+    
         return 'average.png'
     end
 
