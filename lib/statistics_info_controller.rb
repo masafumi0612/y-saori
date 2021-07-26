@@ -104,10 +104,12 @@ class StatisticsInfoController
         g_name = group_name.each_with_index.sort
         label.concat sort_name
 
+        sort_p_num = product_number.each_with_index.sort
+
         product_number.length.times do |i|
-            table[i] = [product_number[i],product_name[i]]
+            table[i] = [product_number[sort_p_num[i][1]],product_name[sort_p_num[i][1]]]
             group_name.length.times do |j|
-                table[i].push(submission_number[g_name[j][1]][i])
+                table[i].push(submission_number[g_name[j][1]][sort_p_num[i][1]])
             end
         end
 
