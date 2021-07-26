@@ -75,13 +75,12 @@ class StatisticsInfoController
             input_filenames.push(create_graph)
         end
         download_folder_path = "../downloads/"
-        zip_folder_path = "../archives/"
+        zip_folder_path = "../downloads/"
         zipfile_name = "archive.zip"
 
         if input_filenames.length == 0
             return ""
         elsif input_filenames.length == 1
-            FileUtils.cp("#{download_folder_path}#{input_filenames[0]}", "#{zip_folder_path}#{input_filenames[0]}")
             return "#{input_filenames[0]}"
         end
 
@@ -105,10 +104,12 @@ class StatisticsInfoController
         g_name = group_name.each_with_index.sort
         label.concat sort_name
 
+        sort_p_num = product_number.each_with_index.sort
+
         product_number.length.times do |i|
-            table[i] = [product_number[i],product_name[i]]
+            table[i] = [product_number[sort_p_num[i][1]],product_name[sort_p_num[i][1]]]
             group_name.length.times do |j|
-                table[i].push(submission_number[g_name[j][1]][i])
+                table[i].push(submission_number[g_name[j][1]][sort_p_num[i][1]])
             end
         end
 
@@ -150,6 +151,7 @@ class StatisticsInfoController
     end
 
     def create_graph(group_name, submission_average, year)
+        group_name = group_name.sort
         g = Gruff::Bar.new(900)
 
         g.title = "Average"
@@ -164,24 +166,31 @@ class StatisticsInfoController
         #g.right_margin = 40
         #g.font = '/Library/Fonts/好きなフォント.ttf'
         #g.show_labels_for_bar_values = true
-
         #g.legend_margin = 1.0
+    
         g.minimum_value = 0
         g.y_axis_increment = 1.0
-
+    
         name_data = []
-        group_data = []
+        group_name.each_with_index do |name,i|
+            data_list = []
+            $statistics_year.each do |single_year|
+                if j = single_year.group_name.find_index{|g_name| g_name == name} then
+                    data_list.push(single_year.submission_average[j])
+                else
+                    data_list.push(0)
+                end
+            end
+            g.data name, data_list
+        end
+
         $statistics_year.each_with_index do |data,i|
             name_data.push(i,data.year)
-            group_data[i] = data.group_name
-            group_data[i].each_with_index do |name,i|
-                g.data name, submission_average[i]
-            end
         end
+
         g.labels = Hash[*name_data]
-
         g.write('../downloads/average.png')
-
+    
         return 'average.png'
     end
 
