@@ -310,22 +310,20 @@ def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   EOF_HTML
 end
 
-def html_print_and_download(print_select, download_select, msg, used_url)
+def html_print_and_download(print_select, download_select, update_select, msg, used_url)
   return <<~EOF_HTML
+  <input name="msg" type="hidden" value="#{msg}">
+  <input name="used_url" type="hidden" value="#{used_url}">  
+  <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
+  <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
+  <p><input name="update_select" id="update_select" type="checkbox" value='#{update_select}'>最新の情報で文書管理情報を取得</p>
   <table border="0">
   <tr>
-  <td><input id="print" type="submit" value="表示"/>
-  <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
-  <input name="msg" type="hidden" value="#{msg}">
-  <input name="used_url" type="hidden" value="#{used_url}">
-  </td>
-  <td><input id="download" type="submit" value="ダウンロード"/>
-  <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
-  <input name="msg" type="hidden" value="#{msg}">
-  <input name="used_url" type="hidden" value="#{used_url}">
-  </td>
+  <td><input id="print" type="submit" value="表示"></td>
+  <td><input id="download" type="submit" value="ダウンロード"></td>
   </tr>
   </table>
+
   <script>
   document.getElementById("print").onclick = function() {
     document.getElementById("print_select").value = "click";
@@ -335,7 +333,24 @@ def html_print_and_download(print_select, download_select, msg, used_url)
     document.getElementById("download_select").value = "click";
     document.getElementById("print_select").value = "";
   }
-  </script>
+
+  if(document.getElementById("update_select").value == "checked"){
+    document.getElementById("update_select").checked = true;
+  }else{
+    document.getElementById("update_select").value = ""
+  }
+
+  function value_to_nil(){
+    if (this.checked){
+      this.value = "checked"
+    }else{
+      this.value = ""
+    }
+  }
+
+  var update = document.getElementById("update_select");
+  update.onclick = value_to_nil;
+</script>
   EOF_HTML
 end
 
@@ -450,6 +465,7 @@ form9 = params['form9'].to_s
 
 print_select = params['print_select'].to_s
 download_select = params['download_select'].to_s
+update_select = params['update_select'].to_s
 
 single_select = params['single_select'].to_s
 multiple_select = params['multiple_select'].to_s
@@ -480,7 +496,7 @@ if send_url == "" && (print_select == "click" || download_select == "click")
 end
 
 if send_url != ""
-  if send_url != used_url # 初めてのURLにアクセスするとき
+  if send_url != used_url || update_select == "checked" # 初めてのURLにアクセスするとき，もしくは更新のチェックボックスが選択されているとき
     begin
       document_html = doc_info_controller.get(send_url, "SDM", "SDM")
       document_informations = doc_info_controller.parse(document_html)
@@ -687,7 +703,7 @@ content << html_select_year(from_year_form0, to_year_form0, form0,
 
 content << html_select_tables_and_graph(single_select, multiple_select, graph_select)
 
-content << html_print_and_download(print_select, download_select, msg, used_url)
+content << html_print_and_download(print_select, download_select, update_select, msg, used_url)
 
 #begin
 #  if basic_flag == 1
