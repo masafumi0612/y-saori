@@ -488,6 +488,10 @@ statistics_info_controller = StatisticsInfoController.new
 statistics_table_result = ""
 download_result = ""
 
+if send_url == "" && (print_select == "click" || download_select == "click")
+  msg = "URLを選択してください．"
+end
+
 if send_url != ""
   if send_url != used_url # 初めてのURLにアクセスするとき
     begin
