@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 require 'cgi'
-require 'cgi/session'
 require "cgi/escape"
 require 'json'
 require 'digest'
@@ -415,12 +414,6 @@ content = []
 
 params = CGI.new
 
-begin
-  session = CGI::Session.new(params, {"new_session"=>false})
-rescue ArgumentError
-  session = nil
-end
-
 msg = params['msg'].to_s
 send_url = params['send_url'].to_s
 
@@ -466,12 +459,6 @@ username = params['username'].to_s
 password = params['password'].to_s
 
 used_url = params['used_url'].to_s
-
-if session == nil
-  session = CGI::Session.new(params, {"new_session"=>true})
-else
-  session = CGI::Session.new(params, {"new_session"=>true})
-end
 
 #send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
 #single_select = "checked"
