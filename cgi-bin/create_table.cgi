@@ -565,7 +565,7 @@ if send_url != ""
       end
     end
     years = years.uniq # 年度の重複を取り除く
-    #years = years.sort.reverse # 年度を降順に並び替える
+    years = years.sort # 年度を昇順に並び替える
     years.each do |select_year|
       $statistics_year.push(StatisticsInfo.new(0,0,0,0,0,0,select_year))
     end
