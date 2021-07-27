@@ -6,6 +6,7 @@ require "cgi/escape"
 require 'json'
 require 'digest'
 require "fileutils"
+require 'securerandom'
 require_relative '../lib/source_url_controller'
 require_relative '../lib/document_info_controller'
 require_relative '../lib/document_info'
@@ -371,7 +372,7 @@ def download_csv_content(csv_filename)
   EOF_HTML
 end
 
-def html_download_script(cgi_filename, download_filename)
+def html_download_and_delete_directory_script(cgi_filename, download_filename, download_directory)
   return <<~EOF_HTML
   <script>
   function downloadFromUrlAutomatically(url, fileName){
@@ -393,9 +394,32 @@ def html_download_script(cgi_filename, download_filename)
     xhr.send();
   }
 
+  function post(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    var request = "download_directory=#{download_directory}";
+    xhr.send(request);
+  }
+
   downloadFromUrlAutomatically('#{cgi_filename}', "#{download_filename}");
+  post('delete_download_directory.cgi');
   </script>
 
+  EOF_HTML
+end
+
+def html_delete_directory_script(download_directory)
+  return <<~EOF_HTML
+  <script>
+  function post(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    var request = "download_directory=#{download_directory}";
+    xhr.send(request);
+  }
+
+  post('delete_download_directory.cgi');
+  </script>
   EOF_HTML
 end
 
@@ -487,6 +511,7 @@ doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
 statistics_table_result = ""
 download_result = ""
+download_directory = ""
 
 if send_url == "" && (print_select == "click" || download_select == "click")
   msg = "URLを選択してください．"
@@ -607,6 +632,10 @@ if send_url != ""
 
         graph_file_name = ""
         if graph_select == "checked"
+          if download_directory == ""
+            download_directory = SecureRandom.uuid
+            FileUtils.mkdir("../downloads/#{download_directory}")
+          end
           group_name_len = 0
           i_tmp = 0
           $statistics_year.each_with_index do |single_year, i|
@@ -615,25 +644,33 @@ if send_url != ""
               group_name_len = single_year.group_name.length
             end
           end
-          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
+          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years, download_directory)
         end
-        statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name)
+        statistics_table_result = statistics_info_controller.print_table(single_year_table, multiple_year_table, graph_file_name, download_directory)
       end
 
       if download_select == "click"
         single_year_file_name = []
         if single_select == "checked"
+          if download_directory == ""
+            download_directory = SecureRandom.uuid
+            FileUtils.mkdir("../downloads/#{download_directory}")
+          end
           single_year_table = []
           $statistics_year.each do |single_year|
             single_year_table.push(statistics_info_controller.create_single_year_table(single_year.product_number, single_year.product_name, single_year.group_name, single_year.submission_number, single_year.submission_average, single_year.submission_sum, single_year.year))
           end
           single_year_table.zip($statistics_year) do |single_year, a|
-            single_year_file_name.push(statistics_info_controller.create_single_year_csv_file(single_year, a.year))
+            single_year_file_name.push(statistics_info_controller.create_single_year_csv_file(single_year, a.year, download_directory))
           end
         end
 
         multiple_year_file_name = ""
         if multiple_select == "checked"
+          if download_directory == ""
+            download_directory = SecureRandom.uuid
+            FileUtils.mkdir("../downloads/#{download_directory}")
+          end
           group_name_len = 0
           i_tmp = 0
           $statistics_year.each_with_index do |single_year, i|
@@ -643,11 +680,15 @@ if send_url != ""
             end
           end
           multiple_year_table = statistics_info_controller.create_multiple_years_table($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, 2009)
-          multiple_year_file_name = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table)
+          multiple_year_file_name = statistics_info_controller.create_multiple_years_csv_file(multiple_year_table, download_directory)
         end
 
         graph_file_name = ""
         if graph_select == "checked"
+          if download_directory == ""
+            download_directory = SecureRandom.uuid
+            FileUtils.mkdir("../downloads/#{download_directory}")
+          end
           group_name_len = 0
           i_tmp = 0
           $statistics_year.each_with_index do |single_year, i|
@@ -656,20 +697,16 @@ if send_url != ""
               group_name_len = single_year.group_name.length
             end
           end
-          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years)
+          graph_file_name = statistics_info_controller.create_graph($statistics_year[i_tmp].group_name, $statistics_year[i_tmp].submission_average, years, download_directory)
         end
 
-        download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name)
+        download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name, download_directory)
         if download_filename.include?(".zip")
-          download_result = html_download_script("download_zip.cgi", download_filename)
+          download_result = html_download_and_delete_directory_script("download_zip.cgi?download_directory=#{download_directory}", download_filename, download_directory)
         elsif download_filename.include?(".png")
-          download_result = html_download_script("view_graph.cgi", download_filename)
+          download_result = html_download_and_delete_directory_script("view_graph.cgi?download_directory=#{download_directory}", download_filename, download_directory)
         elsif download_filename.include?(".csv")
-          File.open("download_csv.cgi", "w") do |f|
-            f.write(download_csv_content(download_filename))
-          end
-          FileUtils.chmod(0755, "download_csv.cgi")
-          download_result = html_download_script("download_csv.cgi", download_filename)
+          download_result = html_download_and_delete_directory_script("download_csv.cgi?download_directory=#{download_directory}&download_filename=#{download_filename}", download_filename, download_directory)
         end
       end
       msg = "結果が表示できました．"
@@ -715,6 +752,10 @@ end
 
 if download_result != ""
   content << download_result
+end
+
+if print_select == "click" && graph_select == "checked" && download_directory != ""
+  content << html_delete_directory_script(download_directory)
 end
 
 content << html_foot

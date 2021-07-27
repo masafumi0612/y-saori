@@ -11,7 +11,7 @@ class StatisticsInfoController
 
     end
 
-    def print_table(create_single_year_table = "", create_multiple_years_table = "", create_graph = "")
+    def print_table(create_single_year_table = "", create_multiple_years_table = "", create_graph = "", download_directory)
         text = ""
 
         if create_multiple_years_table
@@ -37,7 +37,7 @@ class StatisticsInfoController
 
         if create_graph != ""
             text << "<h3>&lt;平均提出回数比較グラフ&gt;</h3>"
-            text << '<img src="view_graph.cgi">' << "\n"
+            text << "<img src='view_graph.cgi?download_directory=#{download_directory}'>" << "\n"
         end
 
         if create_single_year_table
@@ -66,7 +66,7 @@ class StatisticsInfoController
         return text
     end
 
-    def download_table(create_single_year_csv_file, create_multiple_years_csv_file, create_graph)
+    def download_table(create_single_year_csv_file, create_multiple_years_csv_file, create_graph, download_directory)
         input_filenames = create_single_year_csv_file
         if create_multiple_years_csv_file != ""
             input_filenames.push(create_multiple_years_csv_file)
@@ -74,8 +74,8 @@ class StatisticsInfoController
         if create_graph != ""
             input_filenames.push(create_graph)
         end
-        download_folder_path = "../downloads/"
-        zip_folder_path = "../downloads/"
+        download_folder_path = "../downloads/#{download_directory}/"
+        zip_folder_path = "../downloads/#{download_directory}/"
         zipfile_name = "archive.zip"
 
         if input_filenames.length == 0
@@ -150,7 +150,7 @@ class StatisticsInfoController
         return table
     end
 
-    def create_graph(group_name, submission_average, year)
+    def create_graph(group_name, submission_average, year, download_directory)
         group_name = group_name.sort
         g = Gruff::Bar.new(900)
 
@@ -189,33 +189,33 @@ class StatisticsInfoController
         end
 
         g.labels = Hash[*name_data]
-        g.write('../downloads/average.png')
+        g.write("../downloads/#{download_directory}/average.png")
     
         return 'average.png'
     end
 
-    def create_single_year_csv_file (s_y_table, year)
+    def create_single_year_csv_file (s_y_table, year, download_directory)
         s_y_csv = CSV.generate do |csv|
             s_y_table.each do |data|
                 csv << data
             end
         end
 
-        File.open("../downloads/#{year}.csv", 'w') do |f|
+        File.open("../downloads/#{download_directory}/#{year}.csv", 'w') do |f|
             f.flock(File::LOCK_EX)
             f.puts s_y_csv
         end
         return "#{year}.csv"
     end
 
-    def create_multiple_years_csv_file(m_y_table)
+    def create_multiple_years_csv_file(m_y_table, download_directory)
         m_y_csv = CSV.generate do |csv|
             m_y_table.each do |data|
                 csv << data
             end
         end
 
-        File.open("../downloads/multiple_year.csv", 'w') do |f|
+        File.open("../downloads/#{download_directory}/multiple_year.csv", 'w') do |f|
             f.flock(File::LOCK_EX)
             f.puts m_y_csv
         end
