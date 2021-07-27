@@ -26,7 +26,7 @@ def html_head
   </head>
   <body>
   <center>
-  <form action="create_table.cgi" method="POST" enctype="multipart/form-data"　style="float:left">
+  <form action="create_table.cgi" method="POST">
   <font size=6>文書管理統計表の閲覧・ダウンロード</font>
     <h3>メッセージ欄</h3>
   EOF_HTML
