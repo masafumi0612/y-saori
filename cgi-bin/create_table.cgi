@@ -21,6 +21,7 @@ def html_head
   <head>
   <title>文書管理統計表の閲覧・ダウンロード</title>
   <meta http-equiv="content-type" charset="utf-8">
+  <link rel="stylesheet" href="../html/style.css">
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   </head>
   <body>
@@ -40,13 +41,13 @@ def html_url_table(url_list, send_url)
   pulldown_list = url_pulldown(send_url, url_list)
   return <<~EOF_HTML
   <p><font color=#CC0000>※登録済みのURLから一つ選択してください</font></p>
-  <table border=1 bgcolor =#FFFFFF>
+  <table border=1 bgcolor =#FFFFFF width="600">
   <tr>
-    <td bgcolor =#CCFFFF>
+    <td class="create_index" bgcolor =#CCFFFF>
       URL
     </td>
     <td>
-      <select name="send_url">
+      <select class="url_pull" name="send_url">
         #{pulldown_list}
       </select>
     </td>
@@ -109,15 +110,15 @@ for i in 0..forms.length
 end
 
   return <<~EOF_HTML
-  <table border="1">
+  <table border="1" width="600">
   <tr>
-  <td>年度</td>
-  <td>1つ追加</td>
-  <td><button type="button" id="single_year_form">+</button></td>
-  <td>まとめて追加</td>
-  <td><button type="button" id="multiple_year_form">+</button></td>
+  <td class="create_index" rowspan="2">年度</td>
+  <td align="center">1つ追加<button type="button" id="single_year_form">+</button></td>
+  <td align="center">まとめて追加<button type="button" id="multiple_year_form">+</button></td>
   </tr>
-  </table>
+
+  <tr>
+  <td colspan="2">
   <table>
   <tr>
   <td><input type="#{forms_type[0]}" name="form0" id="form0" value="#{form0}"></td>
@@ -180,7 +181,10 @@ end
   <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value="#{to_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
   </tr>
   </table>
-  <table border="1">
+  </td>
+  </tr>
+
+  </table>
   <div id="year_form_field"></div>
   </table>
   <script>
@@ -260,18 +264,18 @@ end
 def html_select_tables_and_graph(single_select, multiple_select, graph_select)
   return <<~EOF_HTML
   <p><font color=#CC0000>※表示またはダウンロードしたい作成物を選択してください</font></p>
-  <table border="1">
+  <table border="1" width="600">
   <tr>
-  <td rowspan="3">作成物</td>
-  <td><input name="single_select" id="single_select" type="checkbox" value='#{single_select}'></td>
+  <td rowspan="3" class="create_index">作成物</td>
+  <td align="center"><input name="single_select" id="single_select" type="checkbox" value='#{single_select}'></td>
   <td>提出回数集計表</td>
   </tr>
   <tr>
-  <td><input name="multiple_select" id="multiple_select" type="checkbox" value='#{multiple_select}'></td>
+  <td align="center"><input name="multiple_select" id="multiple_select" type="checkbox" value='#{multiple_select}'></td>
   <td>平均提出回数比較表</td>
   </tr>
   <tr>
-  <td><input name="graph_select" id="graph_select" type="checkbox" value='#{graph_select}'></td>
+  <td align="center"><input name="graph_select" id="graph_select" type="checkbox" value='#{graph_select}'></td>
   <td>平均提出回数比較グラフ</td>
   </tr>
   </table>
