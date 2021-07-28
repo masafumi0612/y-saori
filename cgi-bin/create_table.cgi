@@ -27,13 +27,12 @@ def html_head
   <center>
   <form action="create_table.cgi" method="POST">
   <font size=6>文書管理統計表の閲覧・ダウンロード</font>
-    <h3>メッセージ欄</h3>
   EOF_HTML
 end
 
 def html_message(msg)
   return <<~EOF_HTML
-  <p>#{msg}</p>
+  <h3>#{msg}</h3>
   EOF_HTML
 end
 def html_url_table(url_list, send_url)
