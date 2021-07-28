@@ -28,13 +28,12 @@ def html_head
   <center>
   <form action="create_table.cgi" method="POST">
   <font size=6>文書管理統計表の閲覧・ダウンロード</font>
-    <h3>メッセージ欄</h3>
   EOF_HTML
 end
 
 def html_message(msg)
   return <<~EOF_HTML
-  <p>#{msg}</p>
+  <h3>#{msg}</h3>
   EOF_HTML
 end
 def html_url_table(url_list, send_url)
@@ -370,6 +369,11 @@ def html_basic_dialog(username, password)
   console.log(name)
   document.getElementById('username').value = name;
   document.getElementById('password').value = pass;
+  if(document.getElementById("print_select").value == "click") {
+    document.getElementById("print").click();
+  }else if(document.getElementById("download_select").value == "click") {
+    document.getElementById("download").click();
+  }
    </script>
   EOF_HTML
 end
@@ -527,7 +531,7 @@ end
 if send_url != ""
   if send_url != used_url || update_select == "checked" # 初めてのURLにアクセスするとき，もしくは更新のチェックボックスが選択されているとき
     begin
-      document_html = doc_info_controller.get(send_url, "SDM", "SDM")
+      document_html = doc_info_controller.get(send_url, username, password)
       document_informations = doc_info_controller.parse(document_html)
       hash = []
       if document_informations != []
@@ -616,6 +620,8 @@ if send_url != ""
 
     if years == [] # 表示できる年度がないとき
       msg = "選択した年度は表示できません．"
+    elsif single_select == "" && multiple_select == "" && graph_select == "" # 成果物を選択していないとき
+      msg = "一つ以上の成果物を選択してください．"
     else
       if print_select == "click"
         if single_select == "checked"
@@ -727,6 +733,19 @@ url_list = source_url_controller.list
 
 content << html_head
 
+
+begin
+  if basic_flag == 1
+    if username != "" || password != "" # 認証情報が間違えているとき
+      username = ""
+      password = ""
+      msg = "認証に失敗しました．"
+    else # 認証情報を入力するダイアログを表示
+      basic_dialog = html_basic_dialog(username, password)
+    end
+  end
+end
+
 content << html_message(msg)
 
 content << html_url_table(url_list, send_url)
@@ -746,12 +765,10 @@ content << html_select_tables_and_graph(single_select, multiple_select, graph_se
 
 content << html_print_and_download(print_select, download_select, update_select, msg, used_url)
 
-#begin
-#  if basic_flag == 1
-#    content << html_basic_dialog(username, password)
-#  end
-#rescue
-#end
+
+begin
+  content << basic_dialog
+end
 
 if statistics_table_result != ""
   content << statistics_table_result
