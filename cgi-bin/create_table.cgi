@@ -612,6 +612,8 @@ if send_url != ""
 
     if years == [] # 表示できる年度がないとき
       msg = "選択した年度は表示できません．"
+    elsif single_select == "" && multiple_select == "" && graph_select == "" # 成果物を選択していないとき
+      msg = "一つ以上の成果物を選択してください．"
     else
       if print_select == "click"
         if single_select == "checked"
