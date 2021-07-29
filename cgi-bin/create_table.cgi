@@ -378,7 +378,7 @@ def html_basic_dialog(username, password)
   EOF_HTML
 end
 
-def html_download_and_delete_directory_script(cgi_filename, download_filename, download_directory)
+def html_download_script(cgi_filename, download_filename, download_directory)
   return <<~EOF_HTML
   <script>
   function downloadFromUrlAutomatically(url, fileName){
@@ -400,32 +400,9 @@ def html_download_and_delete_directory_script(cgi_filename, download_filename, d
     xhr.send();
   }
 
-  function post(url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    var request = "download_directory=#{download_directory}";
-    xhr.send(request);
-  }
-
   downloadFromUrlAutomatically('#{cgi_filename}', "#{download_filename}");
-  post('delete_download_directory.cgi');
   </script>
 
-  EOF_HTML
-end
-
-def html_delete_directory_script(download_directory)
-  return <<~EOF_HTML
-  <script>
-  function post(url) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    var request = "download_directory=#{download_directory}";
-    xhr.send(request);
-  }
-
-  post('delete_download_directory.cgi');
-  </script>
   EOF_HTML
 end
 
@@ -699,11 +676,11 @@ if send_url != ""
 
         download_filename = statistics_info_controller.download_table(single_year_file_name, multiple_year_file_name, graph_file_name, download_directory)
         if download_filename.include?(".zip")
-          download_result = html_download_and_delete_directory_script("download_zip.cgi?download_directory=#{download_directory}", download_filename, download_directory)
+          download_result = html_download_script("download_zip.cgi?download_directory=#{download_directory}", download_filename, download_directory)
         elsif download_filename.include?(".png")
-          download_result = html_download_and_delete_directory_script("view_graph.cgi?download_directory=#{download_directory}", download_filename, download_directory)
+          download_result = html_download_script("view_graph.cgi?download_directory=#{download_directory}", download_filename, download_directory)
         elsif download_filename.include?(".csv")
-          download_result = html_download_and_delete_directory_script("download_csv.cgi?download_directory=#{download_directory}&download_filename=#{download_filename}", download_filename, download_directory)
+          download_result = html_download_script("download_csv.cgi?download_directory=#{download_directory}&download_filename=#{download_filename}", download_filename, download_directory)
         end
       end
       msg = "結果が表示できました．"
@@ -760,10 +737,6 @@ end
 
 if download_result != ""
   content << download_result
-end
-
-if print_select == "click" && graph_select == "checked" && download_directory != ""
-  content << html_delete_directory_script(download_directory)
 end
 
 content << html_foot
