@@ -21,7 +21,7 @@ def html_head
   <head>
   <title>文書管理統計表の閲覧・ダウンロード</title>
   <meta http-equiv="content-type" charset="utf-8">
-  <link rel="stylesheet" href="../html/style.css">
+  <link rel="stylesheet" href="../style.css">
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   </head>
   <body>
