@@ -378,22 +378,6 @@ def html_basic_dialog(username, password)
   EOF_HTML
 end
 
-def download_csv_content(csv_filename)
-  return <<~EOF_HTML
-  #!/usr/bin/ruby
-  
-  content = ""
-  content << "Content-type: text/csv"
-  content << "\n\n"
-  
-  File.open("../downloads/#{csv_filename}", 'r') do |f|
-    content << f.read()
-    end
-  
-  puts content
-  EOF_HTML
-end
-
 def html_download_and_delete_directory_script(cgi_filename, download_filename, download_directory)
   return <<~EOF_HTML
   <script>
