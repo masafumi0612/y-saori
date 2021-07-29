@@ -26,7 +26,7 @@ def html_head
     <head>
     <title>文書管理情報取得元入力</title>
     <meta http-equiv="content-type" charset="utf-8">
-    <link rel="stylesheet" href="../html/style.css">
+    <link rel="stylesheet" href="../style.css">
     </head>
     <center>
     <body>

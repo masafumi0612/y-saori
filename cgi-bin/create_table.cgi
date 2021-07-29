@@ -21,7 +21,7 @@ def html_head
   <head>
   <title>文書管理統計表の閲覧・ダウンロード</title>
   <meta http-equiv="content-type" charset="utf-8">
-  <link rel="stylesheet" href="../html/style.css">
+  <link rel="stylesheet" href="../style.css">
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
   </head>
   <body>
@@ -33,7 +33,7 @@ end
 
 def html_message(msg)
   return <<~EOF_HTML
-  <h3>#{msg}</h3>
+  <h3><font color="00CC00">#{msg}</font></h3>
   EOF_HTML
 end
 def html_url_table(url_list, send_url)
@@ -42,7 +42,7 @@ def html_url_table(url_list, send_url)
   <p><font color=#CC0000>※登録済みのURLから一つ選択してください</font></p>
   <table border=1 bgcolor =#FFFFFF width="600">
   <tr>
-    <td class="create_index" bgcolor =#CCFFFF>
+    <td class="create_index">
       URL
     </td>
     <td>
@@ -111,9 +111,9 @@ end
   return <<~EOF_HTML
   <table border="1" width="600">
   <tr>
-  <td class="create_index" rowspan="2">年度</td>
-  <td align="center">1つ追加<button type="button" id="single_year_form">+</button></td>
-  <td align="center">まとめて追加<button type="button" id="multiple_year_form">+</button></td>
+  <td class="create_index" rowspan="2">年度フィルタ</td>
+  <td align="center">1つ追加 <button type="button" id="single_year_form">+</button></td>
+  <td align="center">まとめて追加 <button type="button" id="multiple_year_form">+</button></td>
   </tr>
 
   <tr>
