@@ -121,63 +121,63 @@ end
   <table>
   <tr>
   <td><input type="#{forms_type[0]}" name="form0" id="form0" value="#{form0}"></td>
-  <td><input type="#{from_year_forms_type[0]}" name="from_year_form0" id="from_year_form0" value="#{from_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[0]}" name="from_year_form0" id="from_year_form0" value="#{from_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2009"></td>
   <td><div id="form0_wave">#{waves[0]}</div></td>
-  <td><input type="#{to_year_forms_type[0]}" name="to_year_form0" id="to_year_form0" value="#{to_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[0]}" name="to_year_form0" id="to_year_form0" value="#{to_year_form0}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2019"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[1]}" name="form1" id="form1" value='#{form1}'></td>
-  <td><input type="#{from_year_forms_type[1]}" name="from_year_form1" id="from_year_form1" value="#{from_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[1]}" name="from_year_form1" id="from_year_form1" value="#{from_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2010"></td>
   <td><div id="form1_wave">#{waves[1]}</div></td>
-  <td><input type="#{to_year_forms_type[1]}" name="to_year_form1" id="to_year_form1" value="#{to_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[1]}" name="to_year_form1" id="to_year_form1" value="#{to_year_form1}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2020"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[2]}" name="form2" id="form2" value='#{form2}'></td>
-  <td><input type="#{from_year_forms_type[2]}" name="from_year_form2" id="from_year_form2" value="#{from_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[2]}" name="from_year_form2" id="from_year_form2" value="#{from_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2011"></td>
   <td><div id="form2_wave">#{waves[2]}</div></td>
-  <td><input type="#{to_year_forms_type[2]}" name="to_year_form2" id="to_year_form2" value="#{to_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[2]}" name="to_year_form2" id="to_year_form2" value="#{to_year_form2}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2021"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[3]}" name="form3" id="form3" value='#{form3}'></td>
-  <td><input type="#{from_year_forms_type[3]}" name="from_year_form3" id="from_year_form3" value="#{from_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[3]}" name="from_year_form3" id="from_year_form3" value="#{from_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2012"></td>
   <td><div id="form3_wave">#{waves[3]}</div></td>
-  <td><input type="#{to_year_forms_type[3]}" name="to_year_form3" id="to_year_form3" value="#{to_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[3]}" name="to_year_form3" id="to_year_form3" value="#{to_year_form3}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2022"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[4]}" name="form4" id="form4" value='#{form4}'></td>
-  <td><input type="#{from_year_forms_type[4]}" name="from_year_form4" id="from_year_form4" value="#{from_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[4]}" name="from_year_form4" id="from_year_form4" value="#{from_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2013"></td>
   <td><div id="form4_wave">#{waves[4]}</div></td>
-  <td><input type="#{to_year_forms_type[4]}" name="to_year_form4" id="to_year_form4" value="#{to_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[4]}" name="to_year_form4" id="to_year_form4" value="#{to_year_form4}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2023"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[5]}" name="form5" id="form5" value='#{form5}'></td>
-  <td><input type="#{from_year_forms_type[5]}" name="from_year_form5" id="from_year_form5" value="#{from_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[5]}" name="from_year_form5" id="from_year_form5" value="#{from_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2014"></td>
   <td><div id="form5_wave">#{waves[5]}</div></td>
-  <td><input type="#{to_year_forms_type[5]}" name="to_year_form5" id="to_year_form5" value="#{to_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[5]}" name="to_year_form5" id="to_year_form5" value="#{to_year_form5}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2024"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[6]}" name="form6" id="form6" value='#{form6}'></td>
-  <td><input type="#{from_year_forms_type[6]}" name="from_year_form6" id="from_year_form6" value="#{from_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[6]}" name="from_year_form6" id="from_year_form6" value="#{from_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2015"></td>
   <td><div id="form6_wave">#{waves[6]}</div></td>
-  <td><input type="#{to_year_forms_type[6]}" name="to_year_form6" id="to_year_form6" value="#{to_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[6]}" name="to_year_form6" id="to_year_form6" value="#{to_year_form6}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2025"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[7]}" name="form7" id="form7" value='#{form7}'></td>
-  <td><input type="#{from_year_forms_type[7]}" name="from_year_form7" id="from_year_form7" value="#{from_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[7]}" name="from_year_form7" id="from_year_form7" value="#{from_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2016"></td>
   <td><div id="form7_wave">#{waves[7]}</div></td>
-  <td><input type="#{to_year_forms_type[7]}" name="to_year_form7" id="to_year_form7" value="#{to_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[7]}" name="to_year_form7" id="to_year_form7" value="#{to_year_form7}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2026"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[8]}" name="form8" id="form8" value='#{form8}'></td>
-  <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[8]}" name="from_year_form8" id="from_year_form8" value="#{from_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2017"></td>
   <td><div id="form8_wave">#{waves[8]}</div></td>
-  <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value="#{to_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[8]}" name="to_year_form8" id="to_year_form8" value="#{to_year_form8}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2027"></td>
   </tr>
   <tr>
   <td><input type="#{forms_type[9]}" name="form9" id="form9" value='#{form9}'></td>
-  <td><input type="#{from_year_forms_type[9]}" name="from_year_form9" id="from_year_form9" value="#{from_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{from_year_forms_type[9]}" name="from_year_form9" id="from_year_form9" value="#{from_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2018"></td>
   <td><div id="form9_wave">#{waves[9]}</div></td>
-  <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value="#{to_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}"></td>
+  <td><input type="#{to_year_forms_type[9]}" name="to_year_form9" id="to_year_form9" value="#{to_year_form9}" size="4" maxlength="4" pattern="[0-9]{4}" placeholder="例) 2028"></td>
   </tr>
   </table>
   </td>
