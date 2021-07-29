@@ -112,8 +112,8 @@ end
   <table border="1" width="600">
   <tr>
   <td class="create_index" rowspan="2">年度フィルタ</td>
-  <td align="center">1つ追加<button type="button" id="single_year_form">+</button></td>
-  <td align="center">まとめて追加<button type="button" id="multiple_year_form">+</button></td>
+  <td align="center">1つ追加 <button type="button" id="single_year_form">+</button></td>
+  <td align="center">まとめて追加 <button type="button" id="multiple_year_form">+</button></td>
   </tr>
 
   <tr>
