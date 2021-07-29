@@ -320,7 +320,7 @@ def html_print_and_download(print_select, download_select, update_select, msg, u
   <input name="used_url" type="hidden" value="#{used_url}">  
   <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
   <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
-  <p><input name="update_select" id="update_select" type="checkbox" value='#{update_select}'>最新の情報で文書管理情報を取得</p>
+  <p><input name="update_select" id="update_select" type="checkbox" value='#{update_select}'>最新の文書管理情報を取得</p>
   <table border="0">
   <tr>
   <td><input id="print" type="submit" value="表示"></td>
