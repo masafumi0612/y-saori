@@ -320,7 +320,7 @@ def html_print_and_download(print_select, download_select, update_select, msg, u
   <input name="used_url" type="hidden" value="#{used_url}">  
   <input name="print_select" id="print_select" type="hidden" value="#{print_select}"/>
   <input name="download_select" id="download_select" type="hidden" value="#{download_select}"/>
-  <p><input name="update_select" id="update_select" type="checkbox" value='#{update_select}'>最新の情報で文書管理情報を取得</p>
+  <p><input name="update_select" id="update_select" type="checkbox" value='#{update_select}'>最新の文書管理情報を取得</p>
   <table border="0">
   <tr>
   <td><input id="print" type="submit" value="表示"></td>
@@ -422,52 +422,53 @@ content = []
 
 params = CGI.new
 
-msg = params['msg'].to_s
-send_url = params['send_url'].to_s
+msg = CGI.escapeHTML(params['msg'].to_s)
+send_url = CGI.escapeHTML(params['send_url'].to_s)
 
-from_year_form0 = params['from_year_form0'].to_s
-to_year_form0 = params['to_year_form0'].to_s
-form0 = params['form0'].to_s
-from_year_form1 = params['from_year_form1'].to_s
-to_year_form1 = params['to_year_form1'].to_s
-form1 = params['form1'].to_s
-from_year_form2 = params['from_year_form2'].to_s
-to_year_form2 = params['to_year_form2'].to_s
-form2 = params['form2'].to_s
-from_year_form3 = params['from_year_form3'].to_s
-to_year_form3 = params['to_year_form3'].to_s
-form3 = params['form3'].to_s
-from_year_form4 = params['from_year_form4'].to_s
-to_year_form4 = params['to_year_form4'].to_s
-form4 = params['form4'].to_s
-from_year_form5 = params['from_year_form5'].to_s
-to_year_form5 = params['to_year_form5'].to_s
-form5 = params['form5'].to_s
-from_year_form6 = params['from_year_form6'].to_s
-to_year_form6 = params['to_year_form6'].to_s
-form6 = params['form6'].to_s
-from_year_form7 = params['from_year_form7'].to_s
-to_year_form7 = params['to_year_form7'].to_s
-form7 = params['form7'].to_s
-from_year_form8 = params['from_year_form8'].to_s
-to_year_form8 = params['to_year_form8'].to_s
-form8 = params['form8'].to_s
-from_year_form9 = params['from_year_form9'].to_s
-to_year_form9 = params['to_year_form9'].to_s
-form9 = params['form9'].to_s
+from_year_form0 = CGI.escapeHTML(params['from_year_form0'].to_s)
+to_year_form0 = CGI.escapeHTML(params['to_year_form0'].to_s)
+form0 = CGI.escapeHTML(params['form0'].to_s)
+from_year_form1 = CGI.escapeHTML(params['from_year_form1'].to_s)
+to_year_form1 = CGI.escapeHTML(params['to_year_form1'].to_s)
+form1 = CGI.escapeHTML(params['form1'].to_s)
+from_year_form2 = CGI.escapeHTML(params['from_year_form2'].to_s)
+to_year_form2 = CGI.escapeHTML(params['to_year_form2'].to_s)
+form2 = CGI.escapeHTML(params['form2'].to_s)
+from_year_form3 = CGI.escapeHTML(params['from_year_form3'].to_s)
+to_year_form3 = CGI.escapeHTML(params['to_year_form3'].to_s)
+form3 = CGI.escapeHTML(params['form3'].to_s)
+from_year_form4 = CGI.escapeHTML(params['from_year_form4'].to_s)
+to_year_form4 = CGI.escapeHTML(params['to_year_form4'].to_s)
+form4 = CGI.escapeHTML(params['form4'].to_s)
+from_year_form5 = CGI.escapeHTML(params['from_year_form5'].to_s)
+to_year_form5 = CGI.escapeHTML(params['to_year_form5'].to_s)
+form5 = CGI.escapeHTML(params['form5'].to_s)
+from_year_form6 = CGI.escapeHTML(params['from_year_form6'].to_s)
+to_year_form6 = CGI.escapeHTML(params['to_year_form6'].to_s)
+form6 = CGI.escapeHTML(params['form6'].to_s)
+from_year_form7 = CGI.escapeHTML(params['from_year_form7'].to_s)
+to_year_form7 = CGI.escapeHTML(params['to_year_form7'].to_s)
+form7 = CGI.escapeHTML(params['form7'].to_s)
+from_year_form8 = CGI.escapeHTML(params['from_year_form8'].to_s)
+to_year_form8 = CGI.escapeHTML(params['to_year_form8'].to_s)
+form8 = CGI.escapeHTML(params['form8'].to_s)
+from_year_form9 = CGI.escapeHTML(params['from_year_form9'].to_s)
+to_year_form9 = CGI.escapeHTML(params['to_year_form9'].to_s)
+form9 = CGI.escapeHTML(params['form9'].to_s)
 
-print_select = params['print_select'].to_s
-download_select = params['download_select'].to_s
-update_select = params['update_select'].to_s
+print_select = CGI.escapeHTML(params['print_select'].to_s)
+download_select = CGI.escapeHTML(params['download_select'].to_s)
+update_select = CGI.escapeHTML(params['update_select'].to_s)
 
-single_select = params['single_select'].to_s
-multiple_select = params['multiple_select'].to_s
-graph_select = params['graph_select'].to_s
+single_select = CGI.escapeHTML(params['single_select'].to_s)
+multiple_select = CGI.escapeHTML(params['multiple_select'].to_s)
+graph_select = CGI.escapeHTML(params['graph_select'].to_s)
 
-username = params['username'].to_s
-password = params['password'].to_s
+username = CGI.escapeHTML(params['username'].to_s)
+password = CGI.escapeHTML(params['password'].to_s)
 
-used_url = params['used_url'].to_s
+used_url = CGI.escapeHTML(params['used_url'].to_s)
+
 
 #send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
 #single_select = "checked"
