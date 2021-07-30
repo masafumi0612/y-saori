@@ -1,9 +1,5 @@
 #!/usr/bin/ruby
 
-#rubyのexeファイルを実行時に指定すること
-
-#puts "Content-type: text/html\n\n"; #\n\nを加えないとエラーになってしまう(ログを見て確認)
-
 require 'cgi'
 require 'json'
 require '../lib/source_url_controller.rb'

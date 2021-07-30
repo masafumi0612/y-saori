@@ -1,0 +1,8 @@
+# Deny show directory tree
+Options -Indexes
+ 
+# Deny show database and source code from browser
+<Files ~ "\.(json|rb|css)$">
+    Require all denied
+</Files>
+ 

@@ -8,7 +8,6 @@ LIMIT_ERR = 6
 
 class SourceURLController
     def initialize ()
-        #read register.json
     end
 
     def add (url,register_name)
