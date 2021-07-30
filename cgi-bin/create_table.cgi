@@ -469,17 +469,6 @@ password = CGI.escapeHTML(params['password'].to_s)
 
 used_url = CGI.escapeHTML(params['used_url'].to_s)
 
-
-#send_url = "/Users/masafumi/workspace/sdm/y-saori/documentlist.html"
-#single_select = "checked"
-#multiple_select = "checked"
-#graph_select = "checked"
-#print_select = "click"
-#download_select = "click"
-#form0 = "single"
-#form0 = "multiple"
-#from_year_form0 = "2017"
-#to_year_form0 = "2021"
 doc_info_controller = DocumentInfoController.new
 statistics_info_controller = StatisticsInfoController.new
 statistics_table_result = ""
@@ -511,7 +500,6 @@ if send_url != ""
     rescue OpenURI::HTTPError  # 401 authorization required のとき
       basic_flag = 1
     rescue Errno::ENOENT, SocketError # 選択したURLが存在しないとき
-      #msg = "選択したURLにはアクセスできません．存在しないURLにアクセスしている可能性があります．"
     end
   elsif send_url == used_url # 前回と同じURLにアクセスするとき
     document_informations = []
