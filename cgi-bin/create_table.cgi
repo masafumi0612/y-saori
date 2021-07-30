@@ -503,8 +503,9 @@ if send_url != ""
         end
         url_hash = Digest::SHA256.hexdigest(send_url).encode("UTF-8")
         File.open("../database/#{url_hash}.json", 'w') do |file|
-            pretty = JSON.pretty_generate(hash)
-            file.puts pretty
+          file.flock(File::LOCK_EX)
+          pretty = JSON.pretty_generate(hash)
+          file.puts pretty
         end
       end
     rescue OpenURI::HTTPError  # 401 authorization required のとき
