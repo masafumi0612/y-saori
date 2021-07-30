@@ -1,0 +1,26 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    gruff (0.14.0)
+      histogram
+      rmagick
+    histogram (0.2.4.1)
+    mini_portile2 (2.5.3)
+    nokogiri (1.11.7)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
+    racc (1.5.2)
+    rmagick (4.2.2)
+    rubyzip (2.3.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  gruff (>= 0.14.0)
+  nokogiri (>= 1.11.7)
+  rmagick (>= 4.2.2)
+  rubyzip (>= 2.3.2)
+
+BUNDLED WITH
+   2.1.4
